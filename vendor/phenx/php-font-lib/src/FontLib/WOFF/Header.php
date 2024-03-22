@@ -13,20 +13,24 @@ namespace FontLib\WOFF;
  *
  * @package php-font-lib
  */
-class Header extends \FontLib\TrueType\Header {
-  protected $def = array(
-    "format"         => self::uint32,
-    "flavor"         => self::uint32,
-    "length"         => self::uint32,
-    "numTables"      => self::uint16,
-    self::uint16,
-    "totalSfntSize"  => self::uint32,
-    "majorVersion"   => self::uint16,
-    "minorVersion"   => self::uint16,
-    "metaOffset"     => self::uint32,
-    "metaLength"     => self::uint32,
-    "metaOrigLength" => self::uint32,
-    "privOffset"     => self::uint32,
-    "privLength"     => self::uint32,
-  );
+class Header extends \FontLib\TrueType\Header
+{
+  protected $def = [
+    "format"         => self::UINT32,
+    "flavor"         => self::UINT32,
+    "length"         => self::UINT32,
+    "numTables"      => self::UINT16,
+    self::UINT16, // padding
+    "totalSfntSize"  => self::UINT32,
+    "majorVersion"   => self::UINT16,
+    "minorVersion"   => self::UINT16,
+    "metaOffset"     => self::UINT32,
+    "metaLength"     => self::UINT32,
+    "metaOrigLength" => self::UINT32,
+    "privOffset"     => self::UINT32,
+    "privLength"     => self::UINT32,
+  ];
+
+  const UINT16 = 1;
+  const UINT32 = 2;
 }
