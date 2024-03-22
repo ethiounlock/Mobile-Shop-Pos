@@ -1,80 +1,77 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\Table\Type;
+
 use FontLib\Table\Table;
 
 /**
  * `loca` font table.
  *
+ * The `loca` (Location) table maps glyph indexes to their locations in the `glyf` table.
+ * It contains an array of offsets to the glyph outlines in the `glyf` table.
+ *
  * @package php-font-lib
  */
-class loca extends Table {
-  protected function _parse() {
-    $font   = $this->getFont();
-    $offset = $font->pos();
+class loca extends Table
+{
+    /**
+     * @var int[]
+     */
+    protected array $data = [];
 
-    $indexToLocFormat = $font->getData("head", "indexToLocFormat");
-    $numGlyphs        = $font->getData("maxp", "numGlyphs");
+    /**
+     * @inheritDoc
+     */
+    protected function _parse(): void
+    {
+        $font = $this->getFont();
+        $offset = $font->pos();
 
-    $font->seek($offset);
+        $indexToLocFormat = $font->getData("head", "indexToLocFormat");
+        $numGlyphs = $font->getData("maxp", "numGlyphs");
 
-    $data = array();
+        $font->seek($offset);
 
-    // 2 bytes
-    if ($indexToLocFormat == 0) {
-      $d   = $font->read(($numGlyphs + 1) * 2);
-      $loc = unpack("n*", $d);
+        $data = [];
 
-      for ($i = 0; $i <= $numGlyphs; $i++) {
-        $data[] = isset($loc[$i + 1]) ?  $loc[$i + 1] * 2 : 0;
-      }
-    }
+        // 2 bytes
+        if ($indexToLocFormat === 0) {
+            $d = $font->read(($numGlyphs + 1) * 2);
+            $loc = unpack("n*", $d);
 
-    // 4 bytes
-    else {
-      if ($indexToLocFormat == 1) {
-        $d   = $font->read(($numGlyphs + 1) * 4);
-        $loc = unpack("N*", $d);
-
-        for ($i = 0; $i <= $numGlyphs; $i++) {
-          $data[] = isset($loc[$i + 1]) ? $loc[$i + 1] : 0;
+            for ($i = 0; $i <= $numGlyphs; $i++) {
+                $data[] = $loc[$i + 1] * 2 ?? 0;
+            }
         }
-      }
-    }
 
-    $this->data = $data;
-  }
+        // 4 bytes
+        else if ($indexToLocFormat === 1) {
+            $d = $font->read(($numGlyphs + 1) * 4);
+            $loc = unpack("N*", $d);
 
-  function _encode() {
-    $font = $this->getFont();
-    $data = $this->data;
-
-    $indexToLocFormat = $font->getData("head", "indexToLocFormat");
-    $numGlyphs        = $font->getData("maxp", "numGlyphs");
-    $length           = 0;
-
-    // 2 bytes
-    if ($indexToLocFormat == 0) {
-      for ($i = 0; $i <= $numGlyphs; $i++) {
-        $length += $font->writeUInt16($data[$i] / 2);
-      }
-    }
-
-    // 4 bytes
-    else {
-      if ($indexToLocFormat == 1) {
-        for ($i = 0; $i <= $numGlyphs; $i++) {
-          $length += $font->writeUInt32($data[$i]);
+            for ($i = 0; $i <= $numGlyphs; $i++) {
+                $data[] = $loc[$i + 1] ?? 0;
+            }
         }
-      }
+
+        // Handle invalid `indexToLocFormat` values
+        else {
+            throw new \InvalidArgumentException('Invalid `indexToLocFormat` value: ' . $indexToLocFormat);
+        }
+
+        $this->data = $data;
     }
 
-    return $length;
-  }
-}
+    /**
+     * @inheritDoc
+     */
+    public function _encode(): int
+    {
+        $font = $this->getFont();
+        $data = $this->data;
+
+        $indexToLocFormat = $font->getData("head", "indexToLocFormat");
+        $numGlyphs = $font->getData("maxp", "numGlyphs");
+        $length = 0;
+
+       
