@@ -1,9 +1,14 @@
-*.json  text
-*.xml   text
-*.php   text
-*.md    text
-*.css   text
-*.js    text
-*.html  text
-*.htm   text
-*.svg   text
+# Default settings for all files
+default  extension=.txt, mode=t
+
+# Settings for specific file extensions
+*.json  mode=nou&extension=.json
+*.xml   mode=nou&extension=.xml
+*.php   mode=php
+*.md    mode=nou&extension=.md
+*.css   mode=nou&extension=.css
+*.js    mode=nou&extension=.js
+*.html  mode=html
+*.htm   mode=html
+*.svg   mode=nou&extension=.svg
+
