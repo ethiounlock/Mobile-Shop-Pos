@@ -1,21 +1,34 @@
-div.main { background-image: linear-gradient(#000, #fff) }
+/* Set the background image for the main div */
+div.main {
+  background-image: linear-gradient(#000, #fff);
+}
+
+/* Style the collapser pseudo-element */
 .collapser::before,
 .collapser::-moz-before,
 .collapser::-webkit-before {
-    content: "»";
-    font-size: 1.2em;
-    margin-right: .2em;
-    -moz-transition-property: -moz-transform;
-    -moz-transition-duration: .2s;
-    -moz-transform-origin: center 60%;
+  content: "»";
+  font-size: 1.2em;
+  margin-right: 0.2em;
+  transition: transform 0.2s;
+  transform-origin: center 60%;
 }
+
+/* Rotate the collapser pseudo-element when the collapser is expanded */
 .collapser.expanded::before,
 .collapser.expanded::-moz-before,
-.collapser.expanded::-webkit-before { -moz-transform: rotate(90deg) }
-.collapser + * {
-    height: 0;
-    overflow: hidden;
-    -moz-transition-property: height;
-    -moz-transition-duration: .3s;
+.collapser.expanded::-webkit-before {
+  transform: rotate(90deg);
 }
-.collapser.expanded + * { height: auto }
+
+/* Hide the content following the collapser and transition its height */
+.collapser + * {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s;
+}
+
+/* Show the content following the collapser when the collapser is expanded */
+.collapser.expanded + * {
+  height: auto;
+}
