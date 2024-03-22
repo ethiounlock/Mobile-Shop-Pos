@@ -1,1 +1,5 @@
-#home .bg-layout { background-image: url(/bundles/main/img/bg1.png?5);};
+.bg-layout {
+  background-image: url(/bundles/main/img/bg1.png?5);
+  background-repeat: no-repeat;
+  background-size: cover; /* This will ensure the image covers the entire element */
+}
