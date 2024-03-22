@@ -2,17 +2,28 @@
 
 namespace Sabberworm\CSS\Parsing;
 
-class SourceException extends \Exception {
-	private $iLineNo;
-	public function __construct($sMessage, $iLineNo = 0) {
-		$this->iLineNo = $iLineNo;
-		if (!empty($iLineNo)) {
-			$sMessage .= " [line no: $iLineNo]";
-		}
-		parent::__construct($sMessage);
-	}
+class SourceException extends \Exception
+{
+    private $lineNumber;
 
-	public function getLineNo() {
-		return $this->iLineNo;
-	}
+    public function __construct(string $message, int $lineNumber = 0)
+    {
+        $this->lineNumber = $lineNumber;
+        $formattedMessage = $this->formatMessage($message, $lineNumber);
+        parent::__construct($formattedMessage);
+    }
+
+    public function getLineNumber(): int
+    {
+        return $this->lineNumber;
+    }
+
+    private function formatMessage(string $message, int $lineNumber): string
+    {
+        if ($lineNumber > 0) {
+            $message .= " [line no: $lineNumber]";
+        }
+
+        return $message;
+    }
 }
