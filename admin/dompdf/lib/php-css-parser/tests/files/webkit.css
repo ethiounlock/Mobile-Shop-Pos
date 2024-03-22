@@ -1,1 +1,6 @@
-.test { background:-webkit-linear-gradient(top right, white, black)}
+.test {
+  background: linear-gradient(to bottom right, white, black);
+  background-size: 100% 100%; /* This will make the gradient cover the entire element */
+  -webkit-background-size: 100% 100%; /* This is for older webkit browsers */
+}
+
