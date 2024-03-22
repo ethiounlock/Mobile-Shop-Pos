@@ -1,10 +1,5 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
 namespace FontLib;
 
 use FontLib\TrueType\File;
@@ -14,24 +9,39 @@ use FontLib\TrueType\File;
  *
  * @package php-font-lib
  */
-abstract class Header extends BinaryStream {
-  /**
-   * @var File
-   */
-  protected $font;
-  protected $def = array();
+abstract class Header extends BinaryStream
+{
+    /**
+     * @var File
+     */
+    protected File $font;
 
-  public $data;
+    protected array $def;
 
-  public function __construct(File $font) {
-    $this->font = $font;
-  }
+    public mixed $data = null;
 
-  public function encode() {
-    return $this->font->pack($this->def, $this->data);
-  }
+    public function __construct(File $font)
+    {
+        $this->font = $font;
+    }
 
-  public function parse() {
-    $this->data = $this->font->unpack($this->def);
-  }
+    abstract public function encode(): string;
+
+    public function parse(): void
+    {
+        $this->data = $this->font->unpack($this->def);
+
+        if (empty($this->data)) {
+            throw new \RuntimeException('Failed to parse header data.');
+        }
+    }
+
+    public function encode(): string
+    {
+        if ($this->data === null) {
+            throw new \RuntimeException('Header data not set.');
+        }
+
+        return $this->font->pack($this->def, $this->data);
+    }
 }
