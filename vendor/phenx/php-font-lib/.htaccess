@@ -1,1 +1,9 @@
-#deny from all
+# This is an example of a improved version of the code.
+# It allows access from a specific IP address (192.168.1.1)
+# and denies access from all other IP addresses.
+
+# allow access from a specific IP address
+allow from 192.168.1.1
+
+# deny access from all other IP addresses
+deny from all
