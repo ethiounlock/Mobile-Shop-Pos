@@ -1,14 +1,24 @@
-# editorconfig.org
+# .editorconfig
 
+# This file contains configuration settings for EditorConfig.
+# For more information about EditorConfig, please visit:
+# https://editorconfig.org
+
+# top-most EditorConfig file
 root = true
 
+# Unix-style newlines with a newline character at the end of the file
 [*]
 charset = utf-8
 end_of_line = lf
+insert_final_newline = true
+
+# Indentation settings
+[*]
 indent_size = 2
 indent_style = space
-insert_final_newline = true
 trim_trailing_whitespace = true
 
+# Markdown files should not trim trailing whitespace
 [*.md]
 trim_trailing_whitespace = false
