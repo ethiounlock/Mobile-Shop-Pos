@@ -2,26 +2,26 @@
 
 namespace Sabberworm\CSS\CSSList;
 
+use PHPUnit\Framework\TestCase;
 use Sabberworm\CSS\Parser;
 
-class AtRuleBlockListTest extends \PHPUnit_Framework_TestCase {
+class AtRuleBlockListTest extends TestCase
+{
+    public function testMediaQueries()
+    {
+        $csses = [
+            '@media(min-width: 768px){.class{color:red}}',
+            '@media (min-width: 768px) {.class{color:red}}'
+        ];
 
-	public function testMediaQueries() {
-		$sCss = '@media(min-width: 768px){.class{color:red}}';
-		$oParser = new Parser($sCss);
-		$oDoc = $oParser->parse();
-		$aContents = $oDoc->getContents();
-		$oMediaQuery = $aContents[0];
-		$this->assertSame('media', $oMediaQuery->atRuleName(), 'Does not interpret the type as a function');
-		$this->assertSame('(min-width: 768px)', $oMediaQuery->atRuleArgs(), 'The media query is the value');
+        foreach ($csses as $css) {
+            $parser = new Parser($css);
+            $doc = $parser->parse();
+            $contents = $doc->getContents();
+            $mediaQuery = $contents[0];
 
-		$sCss = '@media (min-width: 768px) {.class{color:red}}';
-		$oParser = new Parser($sCss);
-		$oDoc = $oParser->parse();
-		$aContents = $oDoc->getContents();
-		$oMediaQuery = $aContents[0];
-		$this->assertSame('media', $oMediaQuery->atRuleName(), 'Does not interpret the type as a function');
-		$this->assertSame('(min-width: 768px)', $oMediaQuery->atRuleArgs(), 'The media query is the value');
-	}
-
+            $this->assertSame('media', $mediaQuery->atRuleName(), 'Does not interpret the type as a function');
+            $this->assertSame('(min-width: 768px)', $mediaQuery->atRuleArgs(), 'The media query is the value');
+        }
+    }
 }
