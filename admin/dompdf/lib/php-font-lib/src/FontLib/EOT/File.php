@@ -1,160 +1,177 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\EOT;
 
+use FontLib\TrueType\File as TrueTypeFile;
+
 /**
  * EOT font file.
- *
- * @package php-font-lib
  */
-class File extends \FontLib\TrueType\File {
-  const TTEMBED_SUBSET                   = 0x00000001;
-  const TTEMBED_TTCOMPRESSED             = 0x00000004;
-  const TTEMBED_FAILIFVARIATIONSIMULATED = 0x00000010;
-  const TTMBED_EMBEDEUDC                 = 0x00000020;
-  const TTEMBED_VALIDATIONTESTS          = 0x00000040; // Deprecated
-  const TTEMBED_WEBOBJECT      = 0x00000080;
-  const TTEMBED_XORENCRYPTDATA = 0x10000000;
-
-  /**
-   * @var Header
-   */
-  public $header;
-
-  function parseHeader() {
-    if (!empty($this->header)) {
-      return;
-    }
-
-    $this->header = new Header($this);
-    $this->header->parse();
-  }
-
-  function parse() {
-    $this->parseHeader();
-
-    $flags = $this->header->data["Flags"];
-
-    if ($flags & self::TTEMBED_TTCOMPRESSED) {
-      $mtx_version    = $this->readUInt8();
-      $mtx_copy_limit = $this->readUInt8() << 16 | $this->readUInt8() << 8 | $this->readUInt8();
-      $mtx_offset_1   = $this->readUInt8() << 16 | $this->readUInt8() << 8 | $this->readUInt8();
-      $mtx_offset_2   = $this->readUInt8() << 16 | $this->readUInt8() << 8 | $this->readUInt8();
-      /*
-      var_dump("$mtx_version $mtx_copy_limit $mtx_offset_1 $mtx_offset_2");
-
-      $pos = $this->pos();
-      $size = $mtx_offset_1 - $pos;
-      var_dump("pos: $pos");
-      var_dump("size: $size");*/
-    }
-
-    if ($flags & self::TTEMBED_XORENCRYPTDATA) {
-      // Process XOR
-    }
-    // TODO Read font data ...
-  }
+class File extends TrueTypeFile
+{
+    const TTEMBED_SUBSET = 0x00000001;
+    const TTEMBED_TTCOMPRESSED = 0x00000004;
+    const TTEMBED_FAILIFVARIATIONSIMULATED = 0x00000010;
+    const TTMBED_EMBEDEUDC = 0x00000020;
+    const TTEMBED_VALIDATIONTESTS = 0x00000040; // Deprecated
+    const TTEMBED_WEBOBJECT = 0x00000080;
+    const TTEMBED_XORENCRYPTDATA = 0x10000000;
 
     /**
-     * Little endian version of the read method
+     * @var Header
+     */
+    public $header;
+
+    /**
+     * Parse the EOT file header.
+     */
+    public function parseHeader(): void
+    {
+        if (!empty($this->header)) {
+            return;
+        }
+
+        $this->header = new Header($this);
+        $this->header->parse();
+    }
+
+    /**
+     * Parse the EOT file.
+     */
+    public function parse(): void
+    {
+        $this->parseHeader();
+
+        $flags = $this->header->data["Flags"];
+
+        if ($flags & self::TTEMBED_TTCOMPRESSED) {
+            $mtx_version = $this->readUInt8();
+            $mtx_copy_limit = $this->readUInt24();
+            $mtx_offset_1 = $this->readUInt32();
+            $mtx_offset_2 = $this->readUInt32();
+        }
+
+        if ($flags & self::TTEMBED_XORENCRYPTDATA) {
+            // Process XOR
+        }
+
+        // TODO Read font data ...
+    }
+
+    /**
+     * Read a little-endian value from the file.
      *
      * @param int $n The number of bytes to read
      *
      * @return string
      */
-  public function read($n) {
-    if ($n < 1) {
-      return "";
+    public function read(int $n): string
+    {
+        if ($n < 1) {
+            return "";
+        }
+
+        $string = fread($this->f, $n);
+
+        if ($string === false) {
+            throw new \RuntimeException("Error reading from file.");
+        }
+
+        $chunks = str_split($string, 2);
+        $chunks = array_map("strrev", $chunks);
+
+        return implode("", $chunks);
     }
 
-    $string = fread($this->f, $n);
-    $chunks = str_split($string, 2);
-    $chunks = array_map("strrev", $chunks);
+    /**
+     * Read a 32-bit unsigned integer from the file in little-endian byte order.
+     *
+     * @return int
+     */
+    public function readUInt32(): int
+    {
+        $uint32 = parent::readUInt32();
 
-    return implode("", $chunks);
-  }
+        return ($uint32 >> 16 & 0x0000FFFF) | ($uint32 << 16 & 0xFFFF0000);
+    }
 
-  public function readUInt32() {
-    $uint32 = parent::readUInt32();
+    /**
+     * Get font copyright.
+     *
+     * @return string|null
+     */
+    public function getFontCopyright(): ?string
+    {
+        return null;
+    }
 
-    return $uint32 >> 16 & 0x0000FFFF | $uint32 << 16 & 0xFFFF0000;
-  }
+    /**
+     * Get font name.
+     *
+     * @return string|null
+     */
+    public function getFontName(): ?string
+    {
+        return $this->header->data["FamilyName"];
+    }
 
-  /**
-   * Get font copyright
-   *
-   * @return string|null
-   */
-  function getFontCopyright() {
-    return null;
-  }
+    /**
+     * Get font subfamily.
+     *
+     * @return string|null
+     */
+    public function getFontSubfamily(): ?string
+    {
+        return $this->header->data["StyleName"];
+    }
 
-  /**
-   * Get font name
-   *
-   * @return string|null
-   */
-  function getFontName() {
-    return $this->header->data["FamilyName"];
-  }
+    /**
+     * Get font subfamily ID.
+     *
+     * @return string|null
+     */
+    public function getFontSubfamilyID(): ?string
+    {
+        return $this->header->data["StyleName"];
+    }
 
-  /**
-   * Get font subfamily
-   *
-   * @return string|null
-   */
-  function getFontSubfamily() {
-    return $this->header->data["StyleName"];
-  }
+    /**
+     * Get font full name.
+     *
+     * @return string|null
+     */
+    public function getFontFullName(): ?string
+    {
+        return $this->header->data["FullName"];
+    }
 
-  /**
-   * Get font subfamily ID
-   *
-   * @return string|null
-   */
-  function getFontSubfamilyID() {
-    return $this->header->data["StyleName"];
-  }
+    /**
+     * Get font version.
+     *
+     * @return string|null
+     */
+    public function getFontVersion(): ?string
+    {
+        return $this->header->data["VersionName"];
+    }
 
-  /**
-   * Get font full name
-   *
-   * @return string|null
-   */
-  function getFontFullName() {
-    return $this->header->data["FullName"];
-  }
+    /**
+     * Get font weight.
+     *
+     * @return string|null
+     */
+    public function getFontWeight(): ?string
+    {
+        return isset($this->header->data["Weight"]) ? $this->header->data["Weight"] : null;
+    }
 
-  /**
-   * Get font version
-   *
-   * @return string|null
-   */
-  function getFontVersion() {
-    return $this->header->data["VersionName"];
-  }
-
-  /**
-   * Get font weight
-   *
-   * @return string|null
-   */
-  function getFontWeight() {
-    return $this->header->data["Weight"];
-  }
-
-  /**
-   * Get font Postscript name
-   *
-   * @return string|null
-   */
-  function getFontPostscriptName() {
-    return null;
-  }
+    /**
+     * Get font Postscript name.
+     *
+     * @return string|null
+     */
+    public function getFontPostscriptName(): ?string
+    {
+        return null;
+    }
 }
