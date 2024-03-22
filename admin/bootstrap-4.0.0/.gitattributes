@@ -1,16 +1,18 @@
-# Enforce Unix newlines
-*.css   text eol=lf
-*.html  text eol=lf
-*.js    text eol=lf
-*.json  text eol=lf
-*.md    text eol=lf
-*.rb    text eol=lf
-*.scss  text eol=lf
-*.svg   text eol=lf
-*.txt   text eol=lf
-*.yml   text eol=lf
-# Don't diff or textually merge source maps
-*.map   binary
+# Enforce Unix newlines and set encoding to UTF-8
+[*]*.css text eol=lf encoding=utf8
+[*]*.html text eol=lf encoding=utf8
+[*]*.js text eol=lf encoding=utf8
+[*]*.json text eol=lf encoding=utf8
+[*]*.md text eol=lf encoding=utf8
+[*]*.rb text eol=lf encoding=utf8
+[*]*.scss text eol=lf encoding=utf8
+[*]*.svg text eol=lf encoding=utf8
+[*]*.txt text eol=lf encoding=utf8
+[*]*.yml text eol=lf encoding=utf8
 
-bootstrap.css linguist-vendored=false
-bootstrap.js linguist-vendored=false
+# Don't diff or textually merge source maps
+*.map binary
+
+# Mark bootstrap files as vendored
+bootstrap.css linguist-vendored=true
+bootstrap.js linguist-vendored=true
