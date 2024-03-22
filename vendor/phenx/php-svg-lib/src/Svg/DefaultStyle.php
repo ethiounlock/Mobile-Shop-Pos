@@ -1,29 +1,58 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg;
 
+/**
+ * Default style for SVG elements.
+ *
+ * @package php-svg-lib
+ * @link    http://github.com/PhenX/php-svg-lib
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
+ */
 class DefaultStyle extends Style
 {
-    public $color = '';
-    public $opacity = 1.0;
-    public $display = 'inline';
+    /**
+     * @var string CSS color value for the element's color.
+     */
+    private $color = '';
 
-    public $fill = 'black';
-    public $fillOpacity = 1.0;
-    public $fillRule = 'nonzero';
+    /**
+     * @var float Opacity value for the element's color.
+     */
+    private $opacity = 1.0;
 
-    public $stroke = 'none';
-    public $strokeOpacity = 1.0;
-    public $strokeLinecap = 'butt';
-    public $strokeLinejoin = 'miter';
-    public $strokeMiterlimit = 4;
-    public $strokeWidth = 1.0;
-    public $strokeDasharray = 0;
-    public $strokeDashoffset = 0;
-}
+    /**
+     * @var string Display value for the element.
+     */
+    private $display = 'inline';
+
+    /**
+     * @var string CSS color value for the element's fill color.
+     */
+    private $fill = 'black';
+
+    /**
+     * @var float Opacity value for the element's fill color.
+     */
+    private $fillOpacity = 1.0;
+
+    /**
+     * @var string Fill rule for the element's fill.
+     */
+    private $fillRule = 'nonzero';
+
+    /**
+     * @var string CSS color value for the element's stroke color.
+     */
+    private $stroke = 'none';
+
+    /**
+     * @var float Opacity value for the element's stroke color.
+     */
+    private $strokeOpacity = 1.0;
+
+    /**
+     * @var string Stroke line cap style for the element's stroke.
+     */
+    private $strokeLinecap = 'butt';
