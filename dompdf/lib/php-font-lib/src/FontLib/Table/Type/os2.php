@@ -1,47 +1,39 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\Table\Type;
+
 use FontLib\Table\Table;
 
 /**
- * `OS/2` font table.
+ * Class Os2
  *
- * @package php-font-lib
+ * @package FontLib\Table\Type
  */
-class os2 extends Table {
-  protected $def = array(
-    "version"             => self::uint16,
-    "xAvgCharWidth"       => self::int16,
-    "usWeightClass"       => self::uint16,
-    "usWidthClass"        => self::uint16,
-    "fsType"              => self::int16,
-    "ySubscriptXSize"     => self::int16,
-    "ySubscriptYSize"     => self::int16,
-    "ySubscriptXOffset"   => self::int16,
-    "ySubscriptYOffset"   => self::int16,
-    "ySuperscriptXSize"   => self::int16,
-    "ySuperscriptYSize"   => self::int16,
-    "ySuperscriptXOffset" => self::int16,
-    "ySuperscriptYOffset" => self::int16,
-    "yStrikeoutSize"      => self::int16,
-    "yStrikeoutPosition"  => self::int16,
-    "sFamilyClass"        => self::int16,
-    "panose"              => array(self::uint8, 10),
-    "ulCharRange"         => array(self::uint32, 4),
-    "achVendID"           => array(self::char, 4),
-    "fsSelection"         => self::uint16,
-    "fsFirstCharIndex"    => self::uint16,
-    "fsLastCharIndex"     => self::uint16,
-    "typoAscender"        => self::int16,
-    "typoDescender"       => self::int16,
-    "typoLineGap"         => self::int16,
-    "winAscent"           => self::int16,
-    "winDescent"          => self::int16,
-  );
-}
+class Os2 extends Table
+{
+    public const VERSION = 'version';
+    public const X_AVG_CHAR_WIDTH = 'xAvgCharWidth';
+    public const US_WEIGHT_CLASS = 'usWeightClass';
+    public const US_WIDTH_CLASS = 'usWidthClass';
+    public const FS_TYPE = 'fsType';
+    public const Y_SUBSCRIPT_X_SIZE = 'ySubscriptXSize';
+    public const Y_SUBSCRIPT_Y_SIZE = 'ySubscriptYSize';
+    public const Y_SUBSCRIPT_X_OFFSET = 'ySubscriptXOffset';
+    public const Y_SUBSCRIPT_Y_OFFSET = 'ySubscriptYOffset';
+    public const Y_SUPERSCRIPT_X_SIZE = 'ySuperscriptXSize';
+    public const Y_SUPERSCRIPT_Y_SIZE = 'ySuperscriptYSize';
+    public const Y_SUPERSCRIPT_X_OFFSET = 'ySuperscriptXOffset';
+    public const Y_SUPERSCRIPT_Y_OFFSET = 'ySuperscriptYOffset';
+    public const Y_STRIKEOUT_SIZE = 'yStrikeoutSize';
+    public const Y_STRIKEOUT_POSITION = 'yStrikeoutPosition';
+    public const S_FAMILY_CLASS = 'sFamilyClass';
+    public const PANOSE = 'panose';
+    public const UL_CHAR_RANGE = 'ulCharRange';
+    public const ACH_VEND_ID = 'achVendID';
+    public const FS_SELECTION = 'fsSelection';
+    public const FS_FIRST_CHAR_INDEX = 'fsFirstCharIndex';
+    public const FS_LAST_CHAR_INDEX = 'fsLastCharIndex';
+    public const TYPO_ASCENDER = 'typoAscender';
+    public const TYPO_DESCENDER = 'typoDescender';
+    public const TYPO_LINE_GAP = 'typoLineGap';
+    public const WIN_ASCENT = 'winAsc
