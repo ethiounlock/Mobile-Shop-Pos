@@ -1,10 +1,5 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
@@ -19,29 +14,38 @@ class TableRowGroup extends AbstractFrameReflower
 {
 
     /**
+     * @var \Dompdf\Frame
+     */
+    private $frame;
+
+    /**
      * TableRowGroup constructor.
      * @param \Dompdf\Frame $frame
      */
-    function __construct($frame)
+    public function __construct(\Dompdf\Frame $frame)
     {
         parent::__construct($frame);
+        $this->frame = $frame;
     }
 
     /**
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
-        $page = $this->_frame->get_root();
+        $page = $this->frame->get_root();
 
-        $style = $this->_frame->get_style();
+        $style = $this->frame->get_style();
 
-        // Our width is equal to the width of our parent table
-        $table = TableFrameDecorator::find_parent_table($this->_frame);
+        // Find the parent table
+        $table = TableFrameDecorator::find_parent_table($this->frame);
+        if ($table === null) {
+            throw new \Exception("Table row group does not have a parent table.");
+        }
 
-        $cb = $this->_frame->get_containing_block();
+        $cb = $this->frame->get_containing_block();
 
-        foreach ($this->_frame->get_children() as $child) {
+        foreach ($this->frame->get_children() as $child) {
             // Bail if the page is full
             if ($page->is_full()) {
                 return;
@@ -59,14 +63,18 @@ class TableRowGroup extends AbstractFrameReflower
         }
 
         $cellmap = $table->get_cellmap();
-        $style->width = $cellmap->get_frame_width($this->_frame);
-        $style->height = $cellmap->get_frame_height($this->_frame);
 
-        $this->_frame->set_position($cellmap->get_frame_position($this->_frame));
+        // Check if $cellmap is not null before accessing its properties
+        if ($cellmap !== null) {
+            $style->width = $cellmap->get_frame_width($this->frame);
+            $style->height = $cellmap->get_frame_height($this->frame);
 
-        if ($table->get_style()->border_collapse === "collapse") {
-            // Unset our borders because our cells are now using them
-            $style->border_style = "none";
+            $this->frame->set_position($cellmap->get_frame_position($this->frame));
+
+            if ($table->get_style()->border_collapse === "collapse") {
+                // Unset our borders because our cells are now using them
+                $style->border_style = "none";
+            }
         }
     }
 }
