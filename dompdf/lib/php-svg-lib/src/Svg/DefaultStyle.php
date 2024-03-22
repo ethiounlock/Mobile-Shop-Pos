@@ -1,29 +1,39 @@
 <?php
+
+namespace Svg\Styles;
+
 /**
+ * Default style for SVG elements.
+ *
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
  * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
-
-namespace Svg;
-
-class DefaultStyle extends Style
+class DefaultStyle extends \Svg\Style
 {
-    public $color = '';
-    public $opacity = 1.0;
-    public $display = 'inline';
+    /**
+     * DefaultStyle constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-    public $fill = 'black';
-    public $fillOpacity = 1.0;
-    public $fillRule = 'nonzero';
+        $this->color = '';
+        $this->opacity = 1.0;
+        $this->display = 'inline';
 
-    public $stroke = 'none';
-    public $strokeOpacity = 1.0;
-    public $strokeLinecap = 'butt';
-    public $strokeLinejoin = 'miter';
-    public $strokeMiterlimit = 4;
-    public $strokeWidth = 1.0;
-    public $strokeDasharray = 0;
-    public $strokeDashoffset = 0;
+        $this->fill = 'black';
+        $this->fillOpacity = 1.0;
+        $this->fillRule = 'nonzero';
+
+        $this->stroke = 'none';
+        $this->strokeOpacity = 1.0;
+        $this->strokeLinecap = 'butt';
+        $this->strokeLinejoin = 'miter';
+        $this->strokeMiterlimit = 4;
+        $this->strokeWidth = 1.0;
+        $this->strokeDasharray = 0;
+        $this->strokeDashoffset = 0;
+    }
 }
