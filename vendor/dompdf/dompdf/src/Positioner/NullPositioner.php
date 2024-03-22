@@ -1,10 +1,4 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace Dompdf\Positioner;
 
@@ -13,15 +7,24 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 /**
  * Dummy positioner
  *
+ * This class is an abstract class and cannot be instantiated on its own.
+ * It is intended to be extended by other classes.
+ *
  * @package dompdf
  */
-class NullPositioner extends AbstractPositioner
+abstract class NullPositioner extends AbstractPositioner
 {
 
     /**
-     * @param AbstractFrameDecorator $frame
+     * Position the frame at (0, 0)
+     *
+     * This method is final and cannot be overridden in extending classes.
+     *
+     * @param AbstractFrameDecorator $frame The frame to position
+     *
+     * @return void
      */
-    function position(AbstractFrameDecorator $frame)
+    final public function position(AbstractFrameDecorator $frame)
     {
         return;
     }
