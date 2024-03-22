@@ -2,46 +2,63 @@
 
 namespace Sabberworm\CSS\Value;
 
-abstract class ValueList extends Value {
+/**
+ * Abstract class representing a list of CSS values.
+ */
+abstract class ValueList extends Value
+{
+    /**
+     * @var Value[]
+     */
+    protected array $aComponents;
 
-	protected $aComponents;
-	protected $sSeparator;
+    /**
+     * @var string
+     */
+    protected string $sSeparator;
 
-	public function __construct($aComponents = array(), $sSeparator = ',', $iLineNo = 0) {
-		parent::__construct($iLineNo);
-		if (!is_array($aComponents)) {
-			$aComponents = array($aComponents);
-		}
-		$this->aComponents = $aComponents;
-		$this->sSeparator = $sSeparator;
-	}
+    /**
+     * ValueList constructor.
+     * @param Value[] $aComponents
+     * @param string $sSeparator
+     * @param int|null $iLineNo
+     */
+    public function __construct(array $aComponents = [], string $sSeparator = ',', int $iLineNo = null)
+    {
+        parent::__construct($iLineNo);
+        $this->aComponents = $aComponents;
+        $this->sSeparator = $sSeparator;
+    }
 
-	public function addListComponent($mComponent) {
-		$this->aComponents[] = $mComponent;
-	}
+    /**
+     * Add a component to the list.
+     * @param Value $mComponent
+     */
+    public function addListComponent(Value $mComponent): void
+    {
+        parent::add($mComponent);
+        $this->aComponents[] = $mComponent;
+    }
 
-	public function getListComponents() {
-		return $this->aComponents;
-	}
+    /**
+     * Get the list components.
+     * @return Value[]
+     */
+    public function getListComponents(): array
+    {
+        return $this->aComponents;
+    }
 
-	public function setListComponents($aComponents) {
-		$this->aComponents = $aComponents;
-	}
+    /**
+     * Set the list components.
+     * @param Value[] $aComponents
+     */
+    public function setListComponents(array $aComponents): void
+    {
+        $this->aComponents = $aComponents;
+    }
 
-	public function getListSeparator() {
-		return $this->sSeparator;
-	}
-
-	public function setListSeparator($sSeparator) {
-		$this->sSeparator = $sSeparator;
-	}
-
-	public function __toString() {
-		return $this->render(new \Sabberworm\CSS\OutputFormat());
-	}
-
-	public function render(\Sabberworm\CSS\OutputFormat $oOutputFormat) {
-		return $oOutputFormat->implode($oOutputFormat->spaceBeforeListArgumentSeparator($this->sSeparator) . $this->sSeparator . $oOutputFormat->spaceAfterListArgumentSeparator($this->sSeparator), $this->aComponents);
-	}
-
-}
+    /**
+     * Get the list separator.
+     * @return string
+     */
