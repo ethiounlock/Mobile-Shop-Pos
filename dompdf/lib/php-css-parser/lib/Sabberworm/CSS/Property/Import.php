@@ -1,69 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Property;
 
 use Sabberworm\CSS\Value\URL;
+use Sabberworm\CSS\OutputFormat;
+use Sabberworm\CSS\Exception\InvalidArgumentException;
 
 /**
-* Class representing an @import rule.
-*/
-class Import implements AtRule {
-	private $oLocation;
-	private $sMediaQuery;
-	protected $iLineNo;
-	protected $aComments;
-	
-	public function __construct(URL $oLocation, $sMediaQuery, $iLineNo = 0) {
-		$this->oLocation = $oLocation;
-		$this->sMediaQuery = $sMediaQuery;
-		$this->iLineNo = $iLineNo;
-		$this->aComments = array();
-	}
+ * Class representing an @import rule.
+ */
+class Import implements AtRule
+{
+    private URL $oLocation;
+    private string $sMediaQuery;
+    protected int $iLineNo;
+    protected array $aComments;
 
-	/**
-	 * @return int
-	 */
-	public function getLineNo() {
-		return $this->iLineNo;
-	}
+    public function __construct(URL $oLocation, string $sMediaQuery = '', int $iLineNo = 0)
+    {
+        $this->oLocation = $oLocation;
+        $this->sMediaQuery = $sMediaQuery;
+        $this->iLineNo = $iLineNo;
+        $this->aComments = [];
+    }
 
-	public function setLocation($oLocation) {
-			$this->oLocation = $oLocation;
-	}
+    public function getLineNo(): int
+    {
+        return $this->iLineNo;
+    }
 
-	public function getLocation() {
-			return $this->oLocation;
-	}
-	
-	public function __toString() {
-		return $this->render(new \Sabberworm\CSS\OutputFormat());
-	}
+    public function setLocation(URL $oLocation): self
+    {
+        $this->oLocation = $oLocation;
+        return $this;
+    }
 
-	public function render(\Sabberworm\CSS\OutputFormat $oOutputFormat) {
-		return "@import ".$this->oLocation->render($oOutputFormat).($this->sMediaQuery === null ? '' : ' '.$this->sMediaQuery).';';
-	}
+    public function getLocation(): URL
+    {
+        return $this->oLocation;
+    }
 
-	public function atRuleName() {
-		return 'import';
-	}
+    public function __toString(): string
+    {
+        return $this->render(new OutputFormat());
+    }
 
-	public function atRuleArgs() {
-		$aResult = array($this->oLocation);
-		if($this->sMediaQuery) {
-			array_push($aResult, $this->sMediaQuery);
-		}
-		return $aResult;
-	}
+    public function render(OutputFormat $oOutputFormat): string
+    {
+        $result = '@import ' . $this->oLocation->render($oOutputFormat);
+        if ($this->sMediaQuery !== '') {
+            $result .= ' ' . $this->sMediaQuery;
+        }
+        $result .= ';';
 
-	public function addComments(array $aComments) {
-		$this->aComments = array_merge($this->aComments, $aComments);
-	}
+        return $result;
+    }
 
-	public function getComments() {
-		return $this->aComments;
-	}
+    public function atRuleName(): string
+    {
+        return 'import';
+    }
 
-	public function setComments(array $aComments) {
-		$this->aComments = $aComments;
-	}
-}
+    public function atRuleArgs(): array
+    {
+        return [$this->oLocation, $this->sMediaQuery];
+    }
+
+    public function addCom
