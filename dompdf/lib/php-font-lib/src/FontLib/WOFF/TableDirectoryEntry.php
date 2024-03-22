@@ -1,10 +1,4 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\WOFF;
 
@@ -15,20 +9,38 @@ use FontLib\Table\DirectoryEntry;
  *
  * @package php-font-lib
  */
-class TableDirectoryEntry extends DirectoryEntry {
-  public $origLength;
+class TableDirectoryEntry extends DirectoryEntry
+{
+    /**
+     * @var File|null
+     */
+    private $font;
 
-  function __construct(File $font) {
-    parent::__construct($font);
-  }
+    public int $origLength;
 
-  function parse() {
-    parent::parse();
+    /**
+     * TableDirectoryEntry constructor.
+     *
+     * @param File $font
+     */
+    public function __construct(File $font) {
+        $this->font = $font;
+        parent::__construct($font);
+    }
 
-    $font             = $this->font;
-    $this->offset     = $font->readUInt32();
-    $this->length     = $font->readUInt32();
-    $this->origLength = $font->readUInt32();
-    $this->checksum   = $font->readUInt32();
-  }
+    /**
+     * Parse the table directory entry.
+     */
+    public function parse(): void {
+        parent::parse();
+
+        if (is_null($this->font)) {
+            throw new \RuntimeException('Font object is not set.');
+        }
+
+        $this->offset     = $this->font->readUInt32();
+        $this->length     = $this->font->readUInt32();
+        $this->origLength = $this->font->readUInt32();
+        $this->checksum   = $this->font->readUInt32();
+    }
 }
