@@ -1,8 +1,9 @@
 <?php
+
 namespace Dompdf\Frame;
 
 use Iterator;
-use Dompdf\Frame;
+use Countable;
 
 /**
  * Linked-list Iterator
@@ -13,7 +14,7 @@ use Dompdf\Frame;
  * @access private
  * @package dompdf
  */
-class FrameListIterator implements Iterator
+class FrameListIterator implements Iterator, Countable
 {
 
     /**
@@ -37,55 +38,56 @@ class FrameListIterator implements Iterator
     public function __construct(Frame $frame)
     {
         $this->_parent = $frame;
-        $this->_cur = $frame->get_first_child();
+        $this->_cur = $frame->getFirstChild();
         $this->_num = 0;
     }
 
     /**
-     *
+     * Rewind the Iterator to the first element
      */
-    public function rewind()
+    public function rewind(): void
     {
-        $this->_cur = $this->_parent->get_first_child();
+        $this->_cur = $this->_parent->getFirstChild();
         $this->_num = 0;
     }
 
     /**
+     * Checks if the current position is valid
+     *
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
-        return isset($this->_cur); // && ($this->_cur->get_prev_sibling() === $this->_prev);
+        return $this->_cur !== null;
     }
 
     /**
+     * Returns the key of the current element
+     *
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->_num;
     }
 
     /**
-     * @return Frame
+     * Returns the current Frame
+     *
+     * @return Frame|null
      */
-    public function current()
+    public function current(): ?Frame
     {
         return $this->_cur;
     }
 
     /**
-     * @return Frame
+     * Move forward to the next element
+     *
+     * @return Frame|null
      */
-    public function next()
+    public function next(): ?Frame
     {
         $ret = $this->_cur;
-        if (!$ret) {
-            return null;
-        }
-
-        $this->_cur = $this->_cur->get_next_sibling();
-        $this->_num++;
-        return $ret;
-    }
-}
+        if ($ret) {
+            $
