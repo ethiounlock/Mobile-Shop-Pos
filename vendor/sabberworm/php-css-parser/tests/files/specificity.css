@@ -1,7 +1,19 @@
-#test .help,
-#file,
-.help:hover,
-li.green,
+/* Selects .test element and applies Helvetica font family when hovered */
+.test:hover {
+    font-family: Helvetica;
+}
+
+/* Selects .help element and applies Helvetica font family */
+#test .help {
+    font-family: Helvetica;
+}
+
+/* Selects li elements with green class and applies Helvetica font family */
+li.green {
+    font-family: Helvetica;
+}
+
+/* Selects li elements within ol elements and applies Helvetica font family to the text before them */
 ol li::before {
-	font-family: Helvetica;
+    font-family: Helvetica;
 }
