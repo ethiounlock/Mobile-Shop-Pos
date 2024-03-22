@@ -1,12 +1,7 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\Table\Type;
+
 use FontLib\Table\Table;
 use FontLib\TrueType\File;
 
@@ -16,27 +11,36 @@ use FontLib\TrueType\File;
  * @package php-font-lib
  */
 class post extends Table {
-  protected $def = array(
-    "format"             => self::Fixed,
-    "italicAngle"        => self::Fixed,
-    "underlinePosition"  => self::FWord,
+  /**
+   * @var array
+   */
+  protected $def = [
+    "format" => self::Fixed,
+    "italicAngle" => self::Fixed,
+    "underlinePosition" => self::FWord,
     "underlineThickness" => self::FWord,
-    "isFixedPitch"       => self::uint32,
-    "minMemType42"       => self::uint32,
-    "maxMemType42"       => self::uint32,
-    "minMemType1"        => self::uint32,
-    "maxMemType1"        => self::uint32,
-  );
+    "isFixedPitch" => self::uint32,
+    "minMemType42" => self::uint32,
+    "maxMemType42" => self::uint32,
+    "minMemType1" => self::uint32,
+    "maxMemType1" => self::uint32,
+  ];
 
-  protected function _parse() {
-    $font = $this->getFont();
+  /**
+   * @var array
+   */
+  protected $names = [];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function _parse(): void {
+    $font = $this->font ?? throw new \RuntimeException('Font object not found');
     $data = $font->unpack($this->def);
-
-    $names = array();
 
     switch ($data["format"]) {
       case 1:
-        $names = File::$macCharNames;
+        $this->names = File::$macCharNames;
         break;
 
       case 2:
@@ -46,18 +50,18 @@ class post extends Table {
 
         $data["glyphNameIndex"] = $glyphNameIndex;
 
-        $namesPascal = array();
+        $namesPascal = [];
         for ($i = 0; $i < $data["numberOfGlyphs"]; $i++) {
-          $len           = $font->readUInt8();
+          $len = $font->readUInt8();
           $namesPascal[] = $font->read($len);
         }
 
         foreach ($glyphNameIndex as $g => $index) {
           if ($index < 258) {
-            $names[$g] = File::$macCharNames[$index];
+            $this->names[$g] = File::$macCharNames[$index];
           }
           else {
-            $names[$g] = $namesPascal[$index - 258];
+            $this->names[$g] = $namesPascal[$index - 258];
           }
         }
 
@@ -74,68 +78,23 @@ class post extends Table {
       case 4:
         // TODO
         break;
-    }
 
-    $data["names"] = $names;
+      default:
+        // throw an exception for unsupported format
+        throw new \RuntimeException('Unsupported post format: ' . $data["format"]);
+    }
 
     $this->data = $data;
   }
 
-  function _encode() {
-    $font           = $this->getFont();
-    $data           = $this->data;
+  /**
+   * {@inheritdoc}
+   */
+  public function _encode(): int {
+    $font = $this->font ?? throw new \RuntimeException('Font object not found');
+    $data = $this->data;
     $data["format"] = 3;
 
-    $length = $font->pack($this->def, $data);
-
-    return $length;
-    /*
-    $subset = $font->getSubset();
-
-    switch($data["format"]) {
-      case 1:
-        // nothing to do
-      break;
-
-      case 2:
-        $old_names = $data["names"];
-
-        $glyphNameIndex = range(0, count($subset));
-
-        $names = array();
-        foreach($subset as $gid) {
-          $names[] = $data["names"][$data["glyphNameIndex"][$gid]];
-        }
-
-        $numberOfGlyphs = count($names);
-        $length += $font->writeUInt16($numberOfGlyphs);
-
-        foreach($glyphNameIndex as $gni) {
-          $length += $font->writeUInt16($gni);
-        }
-
-        //$names = array_slice($names, 257);
-        foreach($names as $name) {
-          $len = strlen($name);
-          $length += $font->writeUInt8($len);
-          $length += $font->write($name, $len);
-        }
-
-      break;
-
-      case 2.5:
-        // TODO
-      break;
-
-      case 3:
-        // nothing
-      break;
-
-      case 4:
-        // TODO
-      break;
-    }
-
-    return $length;*/
+    return $font->pack($this->def, $data);
   }
 }
