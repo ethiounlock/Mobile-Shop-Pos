@@ -2,6 +2,10 @@
 
 namespace Sabberworm\CSS\Property;
 
+use Sabberworm\CSS\OutputFormat;
+use Sabberworm\CSS\CSSList;
+use Sabberworm\CSS\Comment;
+
 /**
  * Class representing an @charset rule.
  * The following restrictions apply:
@@ -9,58 +13,77 @@ namespace Sabberworm\CSS\Property;
  * • May only appear at the very top of a Document’s contents.
  * • Must not appear more than once.
  */
-class Charset implements AtRule {
+class Charset implements AtRule
+{
+    /**
+     * @var string
+     */
+    private $sCharset;
 
-	private $sCharset;
-	protected $iLineNo;
-	protected $aComment;
+    /**
+     * @var int
+     */
+    protected $iLineNo;
 
-	public function __construct($sCharset, $iLineNo = 0) {
-		$this->sCharset = $sCharset;
-		$this->iLineNo = $iLineNo;
-		$this->aComments = array();
-	}
+    /**
+     * @var Comment[]
+     */
+    protected $aComments;
 
-	/**
-	 * @return int
-	 */
-	public function getLineNo() {
-		return $this->iLineNo;
-	}
+    /**
+     * Charset constructor.
+     * @param string $sCharset
+     * @param int $iLineNo
+     */
+    public function __construct(string $sCharset, int $iLineNo = 0)
+    {
+        $this->sCharset = $sCharset;
+        $this->iLineNo = $iLineNo;
+        $this->aComments = [];
+    }
 
-	public function setCharset($sCharset) {
-		$this->sCharset = $sCharset;
-	}
+    /**
+     * @return int
+     */
+    public function getLineNo(): int
+    {
+        return $this->iLineNo;
+    }
 
-	public function getCharset() {
-		return $this->sCharset;
-	}
+    /**
+     * @param string $sCharset
+     */
+    public function setCharset(string $sCharset): void
+    {
+        $this->sCharset = $sCharset;
+    }
 
-	public function __toString() {
-		return $this->render(new \Sabberworm\CSS\OutputFormat());
-	}
+    /**
+     * @return string
+     */
+    public function getCharset(): string
+    {
+        return $this->sCharset;
+    }
 
-	public function render(\Sabberworm\CSS\OutputFormat $oOutputFormat) {
-		return "@charset {$this->sCharset->render($oOutputFormat)};";
-	}
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render(new OutputFormat());
+    }
 
-	public function atRuleName() {
-		return 'charset';
-	}
+    /**
+     * @param OutputFormat $oOutputFormat
+     * @return string
+     */
+    public function render(OutputFormat $oOutputFormat): string
+    {
+        return "@charset {$this->sCharset};";
+    }
 
-	public function atRuleArgs() {
-		return $this->sCharset;
-	}
-
-	public function addComments(array $aComments) {
-		$this->aComments = array_merge($this->aComments, $aComments);
-	}
-
-	public function getComments() {
-		return $this->aComments;
-	}
-
-	public function setComments(array $aComments) {
-		$this->aComments = $aComments;
-	}
-}
+    /**
+     * @return string
+     */
+    public function atRuleName
