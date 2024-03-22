@@ -1,24 +1,20 @@
 <?php
+declare(strict_types=1);
+
+namespace Dompdf;
+
 /**
  * @package dompdf
  * @link    http://dompdf.github.com/
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
-namespace Dompdf;
-
-/**
- * Embeds Javascript into the PDF document
- *
- * @package dompdf
- */
-class JavascriptEmbedder
+final class JavascriptEmbedder
 {
-
     /**
      * @var Dompdf
      */
-    protected $_dompdf;
+    private $_dompdf;
 
     /**
      * JavascriptEmbedder constructor.
@@ -31,22 +27,20 @@ class JavascriptEmbedder
     }
 
     /**
-     * @param $script
+     * Inserts a JavaScript script into the PDF document.
+     *
+     * @param string $script
+     *
+     * @throws \InvalidArgumentException if the script is not a string.
      */
-    public function insert($script)
+    public function insert(string $script): void
     {
+        if (!is_string($script)) {
+            throw new \InvalidArgumentException('The script must be a string.');
+        }
+
         $this->_dompdf->getCanvas()->javascript($script);
     }
 
     /**
-     * @param Frame $frame
-     */
-    public function render(Frame $frame)
-    {
-        if (!$this->_dompdf->getOptions()->getIsJavascriptEnabled()) {
-            return;
-        }
-
-        $this->insert($frame->get_node()->nodeValue);
-    }
-}
+     * Renders the JavaScript script for the
