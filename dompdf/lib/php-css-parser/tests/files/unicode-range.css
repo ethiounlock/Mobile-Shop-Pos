@@ -1,3 +1,7 @@
 @font-face {
-  unicode-range: U+0100-024F, U+0259, U+1E??-2EFF, U+202F;
+  /* Add a more descriptive font family name */
+  font-family: 'MyFont';
+  /* Add a grammatically correct unicode range */
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+202F;
 }
+
