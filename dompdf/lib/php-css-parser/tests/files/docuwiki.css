@@ -1,1 +1,18 @@
-div.dokuwiki div.ajax_qsearch{position:absolute;right:237px;;width:200px;opacity:0.9;display:none;font-size:80%;line-height:1.2em;border:1px solid #8cacbb;background-color:#f7f9fa;text-align:left;padding:4px;}
+.search-results {
+  position: absolute;
+  right: 10px; /* adjusted from 237px to make it more flexible */
+  width: 200px;
+  opacity: 0.9;
+  display: none; /* adjusted to use a CSS class instead of being inline */
+  font-size: 80%;
+  line-height: 1.2em;
+  border: 1px solid #8cacbb;
+  background-color: #f7f9fa;
+  text-align: left;
+  padding: 4px;
+}
+
+/* Use a class to control the display of the search results */
+.show-search-results {
+  display: block;
+}
