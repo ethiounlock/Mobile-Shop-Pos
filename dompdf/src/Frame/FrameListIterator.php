@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Frame;
 
 use Iterator;
@@ -19,19 +20,21 @@ class FrameListIterator implements Iterator
     /**
      * @var Frame
      */
-    protected $_parent;
+    protected Frame $ _parent;
 
     /**
-     * @var Frame
+     * @var Frame|null
      */
-    protected $_cur;
+    protected ?Frame $ _cur = null;
 
     /**
      * @var int
      */
-    protected $_num;
+    protected int $ _num;
 
     /**
+     * FrameListIterator constructor.
+     *
      * @param Frame $frame
      */
     public function __construct(Frame $frame)
@@ -44,7 +47,7 @@ class FrameListIterator implements Iterator
     /**
      *
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->_cur = $this->_parent->get_first_child();
         $this->_num = 0;
@@ -53,15 +56,15 @@ class FrameListIterator implements Iterator
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
-        return isset($this->_cur); // && ($this->_cur->get_prev_sibling() === $this->_prev);
+        return isset($this->_cur);
     }
 
     /**
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->_num;
     }
@@ -69,15 +72,15 @@ class FrameListIterator implements Iterator
     /**
      * @return Frame
      */
-    public function current()
+    public function current(): Frame
     {
         return $this->_cur;
     }
 
     /**
-     * @return Frame
+     * @return Frame|null
      */
-    public function next()
+    public function next(): ?Frame
     {
         $ret = $this->_cur;
         if (!$ret) {
@@ -86,6 +89,6 @@ class FrameListIterator implements Iterator
 
         $this->_cur = $this->_cur->get_next_sibling();
         $this->_num++;
-        return $ret;
+        return $ret ?? null;
     }
 }
