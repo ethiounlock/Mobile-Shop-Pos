@@ -1,45 +1,43 @@
 (function ($) {
-    "use strict";
+  "use strict";
 
-    function getTimeRemaining(endtime) { 
-      var t = Date.parse(endtime) - Date.parse(new Date());
-      var seconds = Math.floor((t / 1000) % 60);
-      var minutes = Math.floor((t / 1000 / 60) % 60);
-      var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
-      var days = Math.floor(t / (1000 * 60 * 60 * 24));
-      return {
-        'total': t,
-        'days': days,
-        'hours': hours,
-        'minutes': minutes,
-        'seconds': seconds
-      };
+  // Gets the remaining time in milliseconds until the given endtime
+  function getTimeRemaining(endtime) {
+    if (!endtime) {
+      console.error("Invalid endtime");
+      return null;
     }
 
-    function initializeClock(id, endtime) { 
-      var daysSpan = $('.days');
-      var hoursSpan = $('.hours');
-      var minutesSpan = $('.minutes');
-      var secondsSpan = $('.seconds');
+    var t = Date.parse(endtime) - Date.parse(new Date());
+    var seconds = Math.floor((t / 1000) % 60);
+    var minutes = Math.floor((t / 1000 / 60) % 60);
+    var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+    var days = Math.floor(t / (1000 * 60 * 60 * 24));
 
-      function updateClock() { 
-        var t = getTimeRemaining(endtime);
+    return {
+      total: t,
+      days: t ? days : null,
+      hours: t ? hours : null,
+      minutes: t ? minutes : null,
+      seconds: t ? seconds : null,
+    };
+  }
 
-        daysSpan.html(t.days);
-        hoursSpan.html(('0' + t.hours).slice(-2));
-        minutesSpan.html(('0' + t.minutes).slice(-2));
-        secondsSpan.html(('0' + t.seconds).slice(-2))
+  // Initializes the countdown clock
+  function initializeClock(id, endtime) {
+    const daysSpan = $(".days");
+    const hoursSpan = $(".hours");
+    const minutesSpan = $(".minutes");
+    const secondsSpan = $(".seconds");
 
-        if (t.total <= 0) {
-          clearInterval(timeinterval);
-        }
+    function updateClock() {
+      const t = getTimeRemaining(endtime);
+
+      if (t === null) {
+        clearInterval(timeinterval);
+        return;
       }
 
-      updateClock();
-      var timeinterval = setInterval(updateClock, 1000);
-    }
-
-    var deadline = new Date(Date.parse(new Date()) + 25 * 24 * 60 * 60 * 1000 + 13 * 60 * 60 * 1000); 
-    initializeClock('clockdiv', deadline);
-
-})(jQuery);
+      daysSpan.html(`${t.days}`);
+      hoursSpan.html(`${("0" + t.hours).slice(-2)}`);
+      minutesSpan.html(`${("0" + t.minutes).slice
