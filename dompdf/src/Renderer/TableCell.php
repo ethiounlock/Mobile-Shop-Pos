@@ -1,10 +1,5 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
@@ -30,25 +25,17 @@ class TableCell extends Block
         }
 
         $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0)  {
+        if (strlen($id) > 0) {
             $this->_canvas->add_named_dest($id);
         }
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
         list($x, $y, $w, $h) = $frame->get_border_box();
-        
 
         $table = Table::find_parent_table($frame);
 
         if ($table->get_style()->border_collapse !== "collapse") {
-            if (($bg = $style->background_color) !== "transparent") {
-                $this->_canvas->filled_rectangle($x, $y, (float)$w, (float)$h, $bg);
-            }
-
-            if (($url = $style->background_image) && $url !== "none") {
-                $this->_background_image($url, $x, $y, $w, $h, $style);
-            }
-
+            $this->_render_background($frame, $x, $y, $w, $h, $style);
             $this->_render_border($frame);
             $this->_render_outline($frame);
             return;
@@ -57,9 +44,18 @@ class TableCell extends Block
         // The collapsed case is slightly complicated...
         // @todo Add support for outlines here
 
-        $background_position_x = $x; $background_position_y = $y; $background_width = (float)$w; $background_height = (float)$h;
-        $border_right_width = 0; $border_left_width = 0; $border_top_width = 0; $border_bottom_width = 0;
-        $border_right_length = 0; $border_left_length = 0; $border_top_length = 0; $border_bottom_length = 0;
+        $background_position_x = $x;
+        $background_position_y = $y;
+        $background_width = (float)$w;
+        $background_height = (float)$h;
+        $border_right_width = 0;
+        $border_left_width = 0;
+        $border_top_width = 0;
+        $border_bottom_width = 0;
+        $border_right_length = 0;
+        $border_left_length = 0;
+        $border_top_length = 0;
+        $border_bottom_length = 0;
 
         $cellmap = $table->get_cellmap();
         $cells = $cellmap->get_spanned_cells($frame);
@@ -104,7 +100,7 @@ class TableCell extends Block
                 ];
 
                 $border_top_width = max($border_top_width, $widths[0]);
-                
+
                 $method = "_border_" . $bp["top"]["style"];
                 $border_function_calls[] = [$method, [$x, $y, $w, $bp["top"]["color"], $widths, "top", "square"]];
             }
@@ -114,7 +110,7 @@ class TableCell extends Block
                 if ($bp["bottom"]["width"] <= 0) {
                     continue;
                 }
-                
+
                 $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],
@@ -145,75 +141,3 @@ class TableCell extends Block
         }
 
         // Draw the vertical borders
-        foreach ($cells["rows"] as $i) {
-            $bp = $cellmap->get_border_properties($i, $j);
-            $row = $cellmap->get_row($i);
-
-            $x = $left_col["x"] - $bp["left"]["width"] / 2;
-            $y = $row["y"] - $bp["top"]["width"] / 2;
-            $h = $row["height"] + ($bp["top"]["width"] + $bp["bottom"]["width"]) / 2;
-
-            if ($bp["left"]["width"] > 0) {
-                $widths = [
-                    (float)$bp["top"]["width"],
-                    (float)$bp["right"]["width"],
-                    (float)$bp["bottom"]["width"],
-                    (float)$bp["left"]["width"]
-                ];
-
-                $border_left_width = max($border_left_width, $widths[3]);
-
-                $method = "_border_" . $bp["left"]["style"];
-                $border_function_calls[] = [$method, [$x, $y, $h, $bp["left"]["color"], $widths, "left", "square"]];
-            }
-
-            if ($draw_right) {
-                $bp = $cellmap->get_border_properties($i, $num_cols - 1);
-                if ($bp["right"]["width"] <= 0) {
-                    continue;
-                }
-
-                $widths = [
-                    (float)$bp["top"]["width"],
-                    (float)$bp["right"]["width"],
-                    (float)$bp["bottom"]["width"],
-                    (float)$bp["left"]["width"]
-                ];
-
-                $x = $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;
-                $border_right_width = max($border_right_width, $widths[1]);
-
-                $method = "_border_" . $bp["right"]["style"];
-                $border_function_calls[] = [$method, [$x, $y, $h, $bp["right"]["color"], $widths, "right", "square"]];
-            } else {
-                $adjacent_bp = $cellmap->get_border_properties($i, $j+1);
-                $border_right_width = max($border_right_width, $adjacent_bp["left"]["width"]);
-            }
-        }
-
-        // Draw our background, border and content
-        if (($bg = $style->background_color) !== "transparent") {
-            $this->_canvas->filled_rectangle(
-                $background_position_x + ($border_left_width/2),
-                $background_position_y + ($border_top_width/2),
-                (float)$background_width - (($border_left_width + $border_right_width)/2),
-                (float)$background_height - (($border_top_width + $border_bottom_width)/2),
-                $bg
-            );
-        }
-        if (($url = $style->background_image) && $url !== "none") {
-            $this->_background_image(
-                $url,
-                $background_position_x + ($border_left_width/2),
-                $background_position_y + ($border_top_width/2),
-                (float)$background_width - (($border_left_width + $border_right_width)/2),
-                (float)$background_height - (($border_top_width + $border_bottom_width)/2),
-                $style
-            );
-        }
-        foreach ($border_function_calls as $border_function_call_params)
-        {
-            call_user_func_array([$this, $border_function_call_params[0]], $border_function_call_params[1]);
-        }
-    }
-}
