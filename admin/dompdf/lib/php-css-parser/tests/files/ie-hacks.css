@@ -1,9 +1,20 @@
 p {
-    padding-right: .75rem \9;
+    /* Only apply styles to IE9 and below */
+    /* Add padding to the right side of the paragraph element */
+    padding-right: 0.75rem \9;
+
+    /* Remove background image for IE9 and below */
     background-image: none \9;
-    color:red\9\0;
-    background-color:red \9 \0;
-    background-color:red \9 \0 !important;
-    content: "red \9\0";
-    content: "red\0abc";
+
+    /* Set the text color to red for IE9 and below */
+    color: red \9;
+
+    /* Set the background color to red for IE9 and below */
+    background-color: red \9;
+
+    /* Set the background color to red for IE9 and below, with higher specificity than the previous rule */
+    background-color: red \9 !important;
+
+    /* Add "red" as content for Firefox 4-6 and below */
+    content: "red\0abc" \0;
 }
