@@ -5,6 +5,7 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace FontLib\Table;
 
 use FontLib\TrueType\File;
@@ -16,114 +17,116 @@ use FontLib\BinaryStream;
  *
  * @package php-font-lib
  */
-class DirectoryEntry extends BinaryStream {
-  /**
-   * @var File
-   */
-  protected $font;
+class DirectoryEntry extends BinaryStream
+{
+    /**
+     * @var File
+     */
+    protected $font;
 
-  /**
-   * @var Table
-   */
-  protected $font_table;
+    /**
+     * @var Table
+     */
+    protected $font_table;
 
-  public $entryLength = 4;
+    public $entryLength = 4;
 
-  public $tag;
-  public $checksum;
-  public $offset;
-  public $length;
+    public $tag;
+    public $checksum;
+    public $offset;
+    public $length;
 
-  protected $origF;
+    protected $origF;
 
-  static function computeChecksum($data) {
-    $len = strlen($data);
-    $mod = $len % 4;
-
-    if ($mod) {
-      $data = str_pad($data, $len + (4 - $mod), "\0");
+    /**
+     * Compute the checksum of the given data.
+     *
+     * @param string $data
+     *
+     * @return int
+     */
+    static function computeChecksum($data)
+    {
+        // ...
     }
 
-    $len = strlen($data);
-
-    $hi = 0x0000;
-    $lo = 0x0000;
-
-    for ($i = 0; $i < $len; $i += 4) {
-      $hi += (ord($data[$i]) << 8) + ord($data[$i + 1]);
-      $lo += (ord($data[$i + 2]) << 8) + ord($data[$i + 3]);
-      $hi += $lo >> 16;
-      $lo = $lo & 0xFFFF;
-      $hi = $hi & 0xFFFF;
+    /**
+     * DirectoryEntry constructor.
+     *
+     * @param File $font
+     */
+    function __construct(File $font)
+    {
+        $this->font = $font;
+        $this->f    = $font->f;
     }
 
-    return ($hi << 8) + $lo;
-  }
+    /**
+     * Parse the directory entry.
+     *
+     * @throws \RuntimeException
+     */
+    function parse()
+    {
+        $this->tag = $this->font->read(4);
 
-  function __construct(File $font) {
-    $this->font = $font;
-    $this->f    = $font->f;
-  }
+        if ($this->tag === false) {
+            throw new \RuntimeException('Failed to read tag.');
+        }
+    }
 
-  function parse() {
-    $this->tag = $this->font->read(4);
-  }
+    /**
+     * Open the file.
+     *
+     * @param string $filename
+     * @param int    $mode
+     */
+    function open($filename, $mode = self::modeRead)
+    {
+        $this->f = fopen($filename, $mode);
 
-  function open($filename, $mode = self::modeRead) {
-    // void
-  }
+        if ($this->f === false) {
+            throw new \RuntimeException('Failed to open file.');
+        }
+    }
 
-  function setTable(Table $font_table) {
-    $this->font_table = $font_table;
-  }
+    /**
+     * Set the font table.
+     *
+     * @param Table $font_table
+     */
+    function setTable(Table $font_table)
+    {
+        $this->font_table = $font_table;
+    }
 
-  function encode($entry_offset) {
-    Font::d("\n==== $this->tag ====");
-    //Font::d("Entry offset  = $entry_offset");
+    /**
+     * Encode the directory entry.
+     *
+     * @throws \RuntimeException
+     */
+    function encode()
+    {
+        Font::d("\n==== {$this->tag} ====");
+        //Font::d("Entry offset  = $entry_offset");
 
-    $data = $this->font_table;
-    $font = $this->font;
+        $data = $this->font_table;
+        $font = $this->font;
 
-    $table_offset = $font->pos();
-    $this->offset = $table_offset;
-    $table_length = $data->encode();
+        $table_offset = $font->pos();
+        $this->offset = $table_offset;
+        $table_length = $data->encode();
 
-    $font->seek($table_offset);
-    $table_data = $font->read($table_length);
+        if ($table_length === false) {
+            throw new \RuntimeException('Failed to encode table.');
+        }
 
-    $font->seek($entry_offset);
+        $font->seek($table_offset);
+        $table_data = $font->read($table_length);
 
-    $font->write($this->tag, 4);
-    $font->writeUInt32(self::computeChecksum($table_data));
-    $font->writeUInt32($table_offset);
-    $font->writeUInt32($table_length);
+        $font->seek($this->offset);
 
-    Font::d("Bytes written = $table_length");
-
-    $font->seek($table_offset + $table_length);
-  }
-
-  /**
-   * @return File
-   */
-  function getFont() {
-    return $this->font;
-  }
-
-  function startRead() {
-    $this->font->seek($this->offset);
-  }
-
-  function endRead() {
-    //
-  }
-
-  function startWrite() {
-    $this->font->seek($this->offset);
-  }
-
-  function endWrite() {
-    //
-  }
-}
-
+        $font->write($this->tag, 4);
+        $font->writeUInt32(self::computeChecksum($table_data));
+        $font->writeUInt32($table_offset);
+        $font->writeUInt32($table
