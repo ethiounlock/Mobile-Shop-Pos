@@ -1,12 +1,7 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\Table\Type;
+
 use FontLib\Table\Table;
 
 /**
@@ -14,29 +9,28 @@ use FontLib\Table\Table;
  *
  * @package php-font-lib
  */
-class maxp extends Table {
-  protected $def = array(
-    "version"               => self::Fixed,
-    "numGlyphs"             => self::uint16,
-    "maxPoints"             => self::uint16,
-    "maxContours"           => self::uint16,
-    "maxComponentPoints"    => self::uint16,
-    "maxComponentContours"  => self::uint16,
-    "maxZones"              => self::uint16,
-    "maxTwilightPoints"     => self::uint16,
-    "maxStorage"            => self::uint16,
-    "maxFunctionDefs"       => self::uint16,
-    "maxInstructionDefs"    => self::uint16,
-    "maxStackElements"      => self::uint16,
-    "maxSizeOfInstructions" => self::uint16,
-    "maxComponentElements"  => self::uint16,
-    "maxComponentDepth"     => self::uint16,
-  );
+class maxp extends Table
+{
+    /**
+     * @var array
+     */
+    protected $def = [
+        "version" => FontLib\Table\Table::Fixed,
+        "numGlyphs" => FontLib\Table\Table::uint16,
+        "maxPoints" => FontLib\Table\Table::uint16,
+        "maxContours" => FontLib\Table\Table::uint16,
+        "maxComponentPoints" => FontLib\Table\Table::uint16,
+        "maxComponentContours" => FontLib\Table\Table::uint16,
+        "maxZones" => FontLib\Table\Table::uint16,
+        "maxTwilightPoints" => FontLib\Table\Table::uint16,
+        "maxStorage" => FontLib\Table\Table::uint16,
+        "maxFunctionDefs" => FontLib\Table\Table::uint16,
+        "maxInstructionDefs" => FontLib\Table\Table::uint16,
+        "maxStackElements" => FontLib\Table\Table::uint16,
+        "maxSizeOfInstructions" => FontLib\Table\Table::uint16,
+        "maxComponentElements" => FontLib\Table\Table::uint16,
+        "maxComponentDepth" => FontLib\Table\Table::uint16,
+    ];
 
-  function _encode() {
-    $font                    = $this->getFont();
-    $this->data["numGlyphs"] = count($font->getSubset());
-
-    return parent::_encode();
-  }
-}
+    /**
+     *
