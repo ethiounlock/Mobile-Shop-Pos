@@ -1,10 +1,4 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace Dompdf\Positioner;
 
@@ -18,14 +12,40 @@ use Dompdf\FrameDecorator\Table;
  */
 class TableCell extends AbstractPositioner
 {
+    /**
+     * @var Table
+     */
+    protected $table;
+
+    /**
+     * @var \DOMMap
+     */
+    protected $cellmap;
+
+    /**
+     * @var \DOMFramePosition
+     */
+    protected $framePosition;
+
+    /**
+     * TableCell constructor.
+     *
+     * @param Table $table
+     * @param \DOMMap $cellmap
+     * @param \DOMFramePosition $framePosition
+     */
+    public function __construct(Table $table, \DOMMap $cellmap, \DOMFramePosition $framePosition)
+    {
+        $this->table = $table;
+        $this->cellmap = $cellmap;
+        $this->framePosition = $framePosition;
+    }
 
     /**
      * @param AbstractFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame)
+    public function position(AbstractFrameDecorator $frame)
     {
-        $table = Table::find_parent_table($frame);
-        $cellmap = $table->get_cellmap();
-        $frame->set_position($cellmap->get_frame_position($frame));
+        $frame->set_position($this->cellmap->get_frame_position($frame));
     }
 }
