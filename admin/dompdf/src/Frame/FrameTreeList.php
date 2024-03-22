@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Frame;
 
 use IteratorAggregate;
@@ -7,29 +8,32 @@ use Dompdf\Frame;
 /**
  * Pre-order IteratorAggregate
  *
- * @access private
- * @package dompdf
+ * This class provides a pre-order iterator for traversing a tree of Frame objects.
  */
 class FrameTreeList implements IteratorAggregate
 {
     /**
-     * @var \Dompdf\Frame
+     * @var Frame|null
      */
-    protected $_root;
+    protected $root;
 
     /**
-     * @param \Dompdf\Frame $root
+     * FrameTreeList constructor.
+     *
+     * @param Frame $root The root Frame object of the tree.
      */
-    public function __construct(Frame $root)
+    public function __construct(Frame $root = null)
     {
-        $this->_root = $root;
+        $this->root = $root;
     }
 
     /**
+     * Returns an iterator for traversing the Frame tree in pre-order.
+     *
      * @return FrameTreeIterator
      */
     public function getIterator()
     {
-        return new FrameTreeIterator($this->_root);
+        return new FrameTreeIterator($this->root);
     }
 }
