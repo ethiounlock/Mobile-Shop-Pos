@@ -1,55 +1,50 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg\Tag;
 
+/**
+ * @package php-svg-lib
+ * @link    http://github.com/PhenX/php-svg-lib
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
+ */
+
 class Rect extends Shape
 {
-    protected $x = 0;
-    protected $y = 0;
-    protected $width = 0;
-    protected $height = 0;
-    protected $rx = 0;
-    protected $ry = 0;
+    protected float $x = 0;
+    protected float $y = 0;
+    protected float $width = 0;
+    protected float $height = 0;
+    protected float $rx = 0;
+    protected float $ry = 0;
 
-    public function start($attributes)
+    public function start(array $attributes): void
     {
-        if (isset($attributes['x'])) {
-            $this->x = $attributes['x'];
-        }
-        if (isset($attributes['y'])) {
-            $this->y = $attributes['y'];
+        $this->x = $attributes['x'] ?? 0;
+        $this->y = $attributes['y'] ?? 0;
+
+        $this->width = $attributes['width'] ?? 0;
+        if (substr($this->width, -1) === '%') {
+            $factor = substr($this->width, 0, -1) / 100;
+            $this->width = $this->document->getWidth() * $factor;
         }
 
-        if (isset($attributes['width'])) {
-            if ('%' === substr($attributes['width'], -1)) {
-                $factor = substr($attributes['width'], 0, -1) / 100;
-                $this->width = $this->document->getWidth() * $factor;
-            } else {
-                $this->width = $attributes['width'];
-            }
-        }
-        if (isset($attributes['height'])) {
-            if ('%' === substr($attributes['height'], -1)) {
-                $factor = substr($attributes['height'], 0, -1) / 100;
-                $this->height = $this->document->getHeight() * $factor;
-            } else {
-                $this->height = $attributes['height'];
-            }
+        $this->height = $attributes['height'] ?? 0;
+        if (substr($this->height, -1) === '%') {
+            $factor = substr($this->height, 0, -1) / 100;
+            $this->height = $this->document->getHeight() * $factor;
         }
 
-        if (isset($attributes['rx'])) {
-            $this->rx = $attributes['rx'];
-        }
-        if (isset($attributes['ry'])) {
-            $this->ry = $attributes['ry'];
-        }
+        $this->rx = $attributes['rx'] ?? 0;
+        $this->ry = $attributes['ry'] ?? 0;
 
-        $this->document->getSurface()->rect($this->x, $this->y, $this->width, $this->height, $this->rx, $this->ry);
+        $this->document->getSurface()->rect(
+            $this->x,
+            $this->y,
+            $this->width,
+            $this->height,
+            $this->rx,
+            $this->ry
+        );
     }
-} 
+}
