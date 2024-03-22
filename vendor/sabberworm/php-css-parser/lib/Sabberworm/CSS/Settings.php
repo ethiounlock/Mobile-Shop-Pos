@@ -9,46 +9,47 @@ use Sabberworm\CSS\Rule\Rule;
  *
  * Configure parser behaviour here.
  */
-class Settings {
-	/**
-	* Multi-byte string support. If true (mbstring extension must be enabled), will use (slower) mb_strlen, mb_convert_case, mb_substr and mb_strpos functions. Otherwise, the normal (ASCII-Only) functions will be used.
-	*/
-	public $bMultibyteSupport;
+class Settings
+{
+    /**
+     * @var bool Multi-byte string support. If true (mbstring extension must be enabled), will use (slower) mb_strlen, mb_convert_case, mb_substr and mb_strpos functions. Otherwise, the normal (ASCII-Only) functions will be used.
+     */
+    private bool $bMultibyteSupport;
 
-	/**
-	* The default charset for the CSS if no `@charset` rule is found. Defaults to utf-8.
-	*/
-	public $sDefaultCharset = 'utf-8';
+    /**
+     * @var string The default charset for the CSS if no `@charset` rule is found. Defaults to utf-8.
+     */
+    private string $sDefaultCharset = 'utf-8';
 
-	/**
-	* Lenient parsing. When used (which is true by default), the parser will not choke on unexpected tokens but simply ignore them.
-	*/
-	public $bLenientParsing = true;
+    /**
+     * @var bool Lenient parsing. When used (which is true by default), the parser will not choke on unexpected tokens but simply ignore them.
+     */
+    private bool $bLenientParsing = true;
 
-	private function __construct() {
-		$this->bMultibyteSupport = extension_loaded('mbstring');
-	}
+    /**
+     * Settings constructor.
+     */
+    private function __construct()
+    {
+        $this->bMultibyteSupport = extension_loaded('mbstring');
+    }
 
-	public static function create() {
-		return new Settings();
-	}
-	
-	public function withMultibyteSupport($bMultibyteSupport = true) {
-		$this->bMultibyteSupport = $bMultibyteSupport;
-		return $this;
-	}
-	
-	public function withDefaultCharset($sDefaultCharset) {
-		$this->sDefaultCharset = $sDefaultCharset;
-		return $this;
-	}
-	
-	public function withLenientParsing($bLenientParsing = true) {
-		$this->bLenientParsing = $bLenientParsing;
-		return $this;
-	}
-	
-	public function beStrict() {
-		return $this->withLenientParsing(false);
-	}
-}
+    /**
+     * Create a new Settings instance.
+     *
+     * @return static
+     */
+    public static function create(): self
+    {
+        return new self();
+    }
+
+    /**
+     * Set multibyte support.
+     *
+     * @param bool $bMultibyteSupport
+     *
+     * @return static
+     */
+    public function withMultibyteSupport(bool $bMultibyteSupport = true): self
+
