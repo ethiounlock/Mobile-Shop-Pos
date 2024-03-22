@@ -1,7 +1,17 @@
+/* Set typography and spacing for the body element */
 body {
-  font: italic 500 14px/1.618 "Trebuchet MS", Georgia, serif;
+  /* Use Trebuchet MS as the primary font, with Georgia and serif as fallbacks */
+  font-family: italic 500 14px/1.618 "Trebuchet MS", Georgia, serif;
+
+  /* Add a 2px solid border with #f0f color */
   border: 2px solid #f0f;
+
+  /* Set the background color to #ccc and add a left-top positioned image */
   background: #ccc url("/images/foo.png") no-repeat left top;
+
+  /* Ensure margin is at least 1em on all sides */
   margin: 1em !important;
+
+  /* Add padding to all sides */
   padding: 2px 6px 3px;
 }
