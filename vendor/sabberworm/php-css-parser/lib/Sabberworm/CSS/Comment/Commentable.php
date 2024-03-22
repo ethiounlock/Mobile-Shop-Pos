@@ -2,22 +2,26 @@
 
 namespace Sabberworm\CSS\Comment;
 
-interface Commentable {
+interface Commentable
+{
+    /**
+     * Adds an array of comments to the object.
+     *
+     * @param Comment[] $aComments An array of Comment objects.
+     */
+    public function addComments(array $aComments): void;
 
-	/**
-	 * @param array $aComments Array of comments.
-	 */
-	public function addComments(array $aComments);
+    /**
+     * Returns an array of comments associated with the object.
+     *
+     * @return Comment[] An array of Comment objects.
+     */
+    public function getComments(): array;
 
-	/**
-	 * @return array
-	 */
-	public function getComments();
-
-	/**
-	 * @param array $aComments Array containing Comment objects.
-	 */
-	public function setComments(array $aComments);
-
-
+    /**
+     * Sets the array of comments associated with the object.
+     *
+     * @param Comment[] $aComments An array of Comment objects.
+     */
+    public function setComments(array $aComments): void;
 }
