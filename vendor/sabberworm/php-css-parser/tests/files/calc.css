@@ -1,6 +1,18 @@
-div { width: calc(100% / 4); }
-div { margin-top: calc(-120% - 4px); }
 div {
-	height: -webkit-calc(9/16 * 100%)!important;
-	width: -moz-calc((50px - 50%)*2);
+  /* Calculate the width as 25% of the container */
+  width: calc(25% - 10px); /* Subtracting 10px to provide some margin between divs */
+
+  /* Calculate the negative margin-top to vertically center the divs */
+  margin-top: calc(-100vh / 16 + 5px); /* Using viewport height units for responsiveness */
+
+  /* Set the height for modern browsers */
+  height: calc(9/16 * 100%);
+
+  /* Set the width for older Firefox browsers */
+  width: -moz-calc(calc(50px - 50%)*2);
+
+  /* Add some vendor prefixes for better browser support */
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
