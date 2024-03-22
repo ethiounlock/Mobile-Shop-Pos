@@ -1,33 +1,53 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg\Tag;
 
 use Svg\Style;
+use Svg\Surface;
 
 class Group extends AbstractTag
 {
-    protected function before($attributes)
+    /**
+     * @var Surface
+     */
+    private $surface;
+
+    /**
+     * @var Style
+     */
+    private $style;
+
+    /**
+     * Group constructor.
+     * @param Surface $surface
+     */
+    public function __construct(Surface $surface)
     {
-        $surface = $this->document->getSurface();
-
-        $surface->save();
-
-        $style = $this->makeStyle($attributes);
-
-        $this->setStyle($style);
-        $surface->setStyle($style);
-
-        $this->applyTransform($attributes);
+        $this->surface = $surface;
     }
 
-    protected function after()
+    protected function before(array $attributes): void
     {
-        $this->document->getSurface()->restore();
+        $this->surface->save();
+
+        try {
+            $this->style = $this->makeStyle($attributes);
+            $this->setStyle($this->style);
+            $this->surface->setStyle($this->style);
+            $this->applyTransform($attributes);
+        } catch (\Exception $e) {
+            // Log or handle the exception here
+            // ...
+
+            // Restore the surface state in case of an error
+            $this->surface->restore();
+
+            throw $e;
+        }
     }
-} 
+
+    protected function after(): void
+    {
+        $this->surface->restore();
+    }
+}
