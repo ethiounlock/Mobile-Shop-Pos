@@ -1,12 +1,7 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\Table\Type;
+
 use FontLib\Table\Table;
 
 /**
@@ -14,46 +9,62 @@ use FontLib\Table\Table;
  *
  * @package php-font-lib
  */
-class hmtx extends Table {
-  protected function _parse() {
-    $font   = $this->getFont();
-    $offset = $font->pos();
+class hmtx extends Table
+{
+    /**
+     * @var int
+     */
+    protected $numOfLongHorMetrics;
 
-    $numOfLongHorMetrics = $font->getData("hhea", "numOfLongHorMetrics");
-    $numGlyphs           = $font->getData("maxp", "numGlyphs");
+    /**
+     * @var int
+     */
+    protected $numGlyphs;
 
-    $font->seek($offset);
+    /**
+     * @var array
+     */
+    protected $data;
 
-    $data = array();
-    $metrics = $font->readUInt16Many($numOfLongHorMetrics * 2);
-    for ($gid = 0, $mid = 0; $gid < $numOfLongHorMetrics; $gid++) {
-      $advanceWidth    = isset($metrics[$mid]) ? $metrics[$mid] : 0;
-      $mid += 1;
-      $leftSideBearing = isset($metrics[$mid]) ? $metrics[$mid] : 0;
-      $mid += 1;
-      $data[$gid]      = array($advanceWidth, $leftSideBearing);
+    /**
+     * {@inheritdoc}
+     */
+    protected function _parse()
+    {
+        $font = $this->getFont();
+        $offset = $font->pos();
+
+        $this->numOfLongHorMetrics = $font->getData("hhea", "numOfLongHorMetrics");
+        $this->numGlyphs = $font->getData("maxp", "numGlyphs");
+
+        $font->seek($offset);
+
+        $metrics = $font->readUInt16Many($this->numOfLongHorMetrics * 2);
+        for ($gid = 0, $mid = 0; $gid < $this->numOfLongHorMetrics; $gid++) {
+            $advanceWidth = $metrics[$mid] ?? 0;
+            $mid += 1;
+            $leftSideBearing = $metrics[$mid] ?? 0;
+            $mid += 1;
+            $this->data[$gid] = [$advanceWidth, $leftSideBearing];
+        }
+
+        if ($this->numOfLongHorMetrics < $this->numGlyphs) {
+            $lastWidth = end($this->data);
+            $this->data = array_pad($this->data, $this->numGlyphs, $lastWidth);
+        }
     }
 
-    if ($numOfLongHorMetrics < $numGlyphs) {
-      $lastWidth = end($data);
-      $data      = array_pad($data, $numGlyphs, $lastWidth);
-    }
+    /**
+     * {@inheritdoc}
+     */
+    protected function _encode()
+    {
+        $font = $this->getFont();
+        $subset = $font->getSubset();
+        $data = $this->data;
 
-    $this->data = $data;
-  }
+        $length = 0;
 
-  protected function _encode() {
-    $font   = $this->getFont();
-    $subset = $font->getSubset();
-    $data   = $this->data;
-
-    $length = 0;
-
-    foreach ($subset as $gid) {
-      $length += $font->writeUInt16($data[$gid][0]);
-      $length += $font->writeUInt16($data[$gid][1]);
-    }
-
-    return $length;
-  }
-}
+        foreach ($subset as $gid) {
+            $length += $font->writeUInt16($data[$gid][0]);
+            $length += $font->
