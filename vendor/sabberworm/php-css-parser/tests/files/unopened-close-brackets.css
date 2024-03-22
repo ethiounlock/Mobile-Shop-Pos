@@ -1,3 +1,4 @@
-}}}.blue{
-  background: #00F;
+.blue {
+  background-color: blue; /* using standard property name for clarity */
+  background: #00F; /* keeping the hex code for consistency */
 }
