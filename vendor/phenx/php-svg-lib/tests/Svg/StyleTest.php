@@ -1,59 +1,52 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Fabien
- * Date: 13/04/14
- * Time: 17:42
- */
+
+declare(strict_types=1);
 
 namespace Svg\Tests;
 
-use Svg\Style;
 use PHPUnit\Framework\TestCase;
+use Svg\Style;
 
-class StyleTest extends TestCase
+final class StyleTest extends TestCase
 {
-
-    public function test_parseColor()
+    public function testParseColor(): void
     {
-        $this->assertEquals("none", Style::parseColor("none"));
-        $this->assertEquals(array(255, 0, 0), Style::parseColor("RED"));
-        $this->assertEquals(array(0, 0, 255), Style::parseColor("blue"));
-        $this->assertEquals(null, Style::parseColor("foo"));
-        $this->assertEquals(array(0, 0, 0), Style::parseColor("black"));
-        $this->assertEquals(array(255, 255, 255), Style::parseColor("white"));
-        $this->assertEquals(array(0, 0, 0), Style::parseColor("#000000"));
-        $this->assertEquals(array(255, 255, 255), Style::parseColor("#ffffff"));
-        $this->assertEquals(array(0, 0, 0), Style::parseColor("rgb(0,0,0)"));
-        $this->assertEquals(array(255, 255, 255), Style::parseColor("rgb(255,255,255)"));
-        $this->assertEquals(array(0, 0, 0), Style::parseColor("rgb(0, 0, 0)"));
-        $this->assertEquals(array(255, 255, 255), Style::parseColor("rgb(255, 255, 255)"));
+        $this->assertSame("none", Style::parseColor("none"));
+        $this->assertSame([255, 0, 0], Style::parseColor("RED"));
+        $this->assertSame([0, 0, 255], Style::parseColor("blue"));
+        $this->assertNull(Style::parseColor("foo"));
+        $this->assertSame([0, 0, 0], Style::parseColor("black"));
+        $this->assertSame([255, 255, 255], Style::parseColor("white"));
+        $this->assertSame([0, 0, 0], Style::parseColor("#000000"));
+        $this->assertSame([255, 255, 255], Style::parseColor("#ffffff"));
+        $this->assertSame([0, 0, 0], Style::parseColor("rgb(0,0,0)"));
+        $this->assertSame([255, 255, 255], Style::parseColor("rgb(255,255,255)"));
+        $this->assertSame([0, 0, 0], Style::parseColor("rgb(0, 0, 0)"));
+        $this->assertSame([255, 255, 255], Style::parseColor("rgb(255, 255, 255)"));
     }
 
-    public function test_fromAttributes()
+    public function testFromAttributes(): void
     {
         $style = new Style();
 
-        $attributes = array(
+        $attributes = [
             "color" => "blue",
             "fill" => "#fff",
             "stroke" => "none",
-        );
+        ];
 
         $style->fromAttributes($attributes);
 
-        $this->assertEquals(array(0, 0, 255), $style->color);
-        $this->assertEquals(array(255, 255, 255), $style->fill);
-        $this->assertEquals("none", $style->stroke);
+        $this->assertSame([0, 0, 255], $style->color);
+        $this->assertSame([255, 255, 255], $style->fill);
+        $this->assertSame("none", $style->stroke);
     }
 
-    public function test_convertSize()
+    public function testConvertSize(): void
     {
-        $this->assertEquals(1, Style::convertSize(1));
-        $this->assertEquals(10, Style::convertSize("10px")); // FIXME
-        $this->assertEquals(10, Style::convertSize("10pt"));
-        $this->assertEquals(8, Style::convertSize("80%", 10, 72));
+        $this->assertSame(1, Style::convertSize(1));
+        $this->assertSame(10, Style::convertSize("10px"));
+        $this->assertSame(10, Style::convertSize("10pt"));
+        $this->assertSame(8, Style::convertSize("80%", 10, 72));
     }
-
 }
- 
