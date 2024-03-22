@@ -3,29 +3,47 @@
 namespace Sabberworm\CSS\Parsing;
 
 /**
-* Thrown if the CSS parsers encounters a token it did not expect
-*/
-class UnexpectedTokenException extends SourceException {
-	private $sExpected;
-	private $sFound;
-	// Possible values: literal, identifier, count, expression, search
-	private $sMatchType;
+ * Thrown if the CSS parsers encounters a token it did not expect
+ */
+class UnexpectedTokenException extends SourceException
+{
+    private $sExpected;
+    private $sFound;
+    private $sMatchType;
 
-	public function __construct($sExpected, $sFound, $sMatchType = 'literal', $iLineNo = 0) {
-		$this->sExpected = $sExpected;
-		$this->sFound = $sFound;
-		$this->sMatchType = $sMatchType;
-		$sMessage = "Token “{$sExpected}” ({$sMatchType}) not found. Got “{$sFound}”.";
-		if($this->sMatchType === 'search') {
-			$sMessage = "Search for “{$sExpected}” returned no results. Context: “{$sFound}”.";
-		} else if($this->sMatchType === 'count') {
-			$sMessage = "Next token was expected to have {$sExpected} chars. Context: “{$sFound}”.";
-		} else if($this->sMatchType === 'identifier') {
-			$sMessage = "Identifier expected. Got “{$sFound}”";
-		} else if($this->sMatchType === 'custom') {
-			$sMessage = trim("$sExpected $sFound");
-		}
+    private const MATCH_TYPES = [
+        'literal',
+        'identifier',
+        'count',
+        'expression',
+        'search',
+        'custom'
+    ];
 
-		parent::__construct($sMessage, $iLineNo);
-	}
-}
+    public function __construct(
+        string $sExpected,
+        string $sFound,
+        string $sMatchType = 'literal',
+        int $iLineNo = 0
+    ) {
+        $this->sExpected = $sExpected;
+        $this->sFound = $sFound;
+        $this->sMatchType = $sMatchType;
+
+        parent::__construct(
+            $this->getErrorMessage(),
+            $iLineNo
+        );
+    }
+
+    private function getErrorMessage(): string
+    {
+        if (!in_array($this->sMatchType, self::MATCH_TYPES, true)) {
+            throw new \InvalidArgumentException(
+                'Invalid match type: ' . $this->sMatchType
+            );
+        }
+
+        $message = match ($this->sMatchType) {
+            'literal' => "Token “{$this->sExpected}” not found. Got “{$this->sFound}”.",
+            'identifier' => "Identifier expected. Got “{$this->
