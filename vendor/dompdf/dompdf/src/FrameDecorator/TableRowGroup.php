@@ -1,10 +1,5 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -26,7 +21,7 @@ class TableRowGroup extends AbstractFrameDecorator
      * @param Frame $frame   Frame to decorate
      * @param Dompdf $dompdf Current dompdf instance
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }
@@ -34,12 +29,12 @@ class TableRowGroup extends AbstractFrameDecorator
     /**
      * Override split() to remove all child rows and this element from the cellmap
      *
-     * @param Frame $child
+     * @param Frame|null $child
      * @param bool $force_pagebreak
      *
      * @return void
      */
-    function split(Frame $child = null, $force_pagebreak = false)
+    public function split(?Frame $child = null, bool $force_pagebreak = false)
     {
         if (is_null($child)) {
             parent::split();
@@ -67,4 +62,3 @@ class TableRowGroup extends AbstractFrameDecorator
         parent::split($child);
     }
 }
-
