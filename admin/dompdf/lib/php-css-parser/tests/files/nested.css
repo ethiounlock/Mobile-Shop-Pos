@@ -1,17 +1,25 @@
-html {
-	some: -test(val1);
+/* Define the custom function once, at the top level */
+@function test($val) {
+  /* Add your custom logic here */
+  /* For example, return the input value in uppercase */
+  @return uppercase($val);
 }
 
+/* Reusable rule set for the `html` element */
 html {
-	some-other: -test(val1);
+  /* Use the custom function consistently */
+  --some-property: test(var1);
+  --some-other-property: test(var1);
 }
 
+/* Override the properties as needed */
 @media screen {
-	html {
-		some: -test(val2);
-	}
+  html {
+    --some-property: test(var2);
+  }
 }
 
+/* Separate unrelated rules */
 #unrelated {
-	other: yes;
+  other: yes;
 }
