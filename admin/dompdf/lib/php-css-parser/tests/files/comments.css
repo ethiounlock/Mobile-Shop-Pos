@@ -1,17 +1,13 @@
-/**
- * Comments Hell.
- */
-@import /* Number 1 */"some/url.css"/* Number 2 */ screen/* Number 3 */;
+/* Clear and concise comments */
+@import url("some/url.css") screen;
 
-.foo, /* Number 4 */          #bar/* Number 5 */ {
-    background-color/* Number 6 */: #000/* Number 7 */;
+.foo,
+#bar {
+    background-color: #000;
 }
 
-@media /* Number 8 */screen /* Number 9 */{
-    /** Number 10 **/
+@media screen {
     #foo.bar {
-        /** Number 10b **/
-        position: absolute;/**/
+        position: absolute;
     }
 }
-/** Number 11 **/
