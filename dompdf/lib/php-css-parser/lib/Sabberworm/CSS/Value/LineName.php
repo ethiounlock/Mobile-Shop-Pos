@@ -4,38 +4,43 @@ namespace Sabberworm\CSS\Value;
 
 use Sabberworm\CSS\Parsing\ParserState;
 use Sabberworm\CSS\Parsing\UnexpectedTokenException;
+use Sabberworm\CSS\Exception;
 
-class LineName extends ValueList {
-	public function __construct($aComponents = array(), $iLineNo = 0) {
-		parent::__construct($aComponents, ' ', $iLineNo);
-	}
+class LineName extends ValueList
+{
+    /**
+     * @param array<string> $aComponents
+     * @param int $iLineNo
+     */
+    public function __construct(array $aComponents = [], int $iLineNo = 0)
+    {
+        parent::__construct($aComponents, ' ', $iLineNo);
+    }
 
-	public static function parse(ParserState $oParserState) {
-		$oParserState->consume('[');
-		$oParserState->consumeWhiteSpace();
-		$aNames = array();
-		do {
-			if($oParserState->getSettings()->bLenientParsing) {
-				try {
-					$aNames[] = $oParserState->parseIdentifier();
-				} catch(UnexpectedTokenException $e) {}
-			} else {
-				$aNames[] = $oParserState->parseIdentifier();
-			}
-			$oParserState->consumeWhiteSpace();
-		} while (!$oParserState->comes(']'));
-		$oParserState->consume(']');
-		return new LineName($aNames, $oParserState->currentLine());
-	}
+    /**
+     * @param ParserState $oParserState
+     * @return static
+     */
+    public static function parse(ParserState $oParserState): self
+    {
+        $oParserState->consume('[');
+        $oParserState->consumeWhiteSpace();
+        $aNames = [];
+        do {
+            if ($oParserState->getSettings()->bLenientParsing) {
+                try {
+                    $aNames[] = $oParserState->parseIdentifier();
+                } catch (UnexpectedTokenException $e) {
+                    if (!$oParserState->comes(']')) {
+                        throw new Exception('Expected identifier or closing bracket, got: ' . $oParserState->getCurrentToken());
+                    }
+                    break;
+                }
+            } else {
+                $aNames[] = $oParserState->parseIdentifier();
+            }
+            $oParserState->consumeWhiteSpace();
+        } while (!$oParserState->comes(']'));
+        $oParserState->consume(']');
 
-
-
-	public function __toString() {
-		return $this->render(new \Sabberworm\CSS\OutputFormat());
-	}
-
-	public function render(\Sabberworm\CSS\OutputFormat $oOutputFormat) {
-		return '[' . parent::render(\Sabberworm\CSS\OutputFormat::createCompact()) . ']';
-	}
-
-}
+        if (
