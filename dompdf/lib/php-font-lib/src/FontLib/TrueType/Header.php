@@ -8,24 +8,46 @@
 
 namespace FontLib\TrueType;
 
+use FontLib\Header;
+
 /**
  * TrueType font file header.
  *
  * @package php-font-lib
  */
-class Header extends \FontLib\Header {
-  protected $def = array(
-    "format"        => self::uint32,
-    "numTables"     => self::uint16,
-    "searchRange"   => self::uint16,
-    "entrySelector" => self::uint16,
-    "rangeShift"    => self::uint16,
-  );
+class Header extends Header
+{
+    protected array $def = [
+        "format"        => self::UINT32,
+        "numTables"     => self::UINT16,
+        "searchRange"   => self::UINT16,
+        "entrySelector" => self::UINT16,
+        "rangeShift"    => self::UINT16,
+    ];
 
-  public function parse() {
-    parent::parse();
+    public const FORMAT_STRINGS = [
+        0 => 'No specific format',
+        1 => 'TrueType',
+        2 => 'TrueType with collections',
+        3 => 'CFF with collections',
+    ];
 
-    $format                   = $this->data["format"];
-    $this->data["formatText"] = $this->convertUInt32ToStr($format);
-  }
+    /**
+     * Convert uint32 to corresponding string format.
+     *
+     * @param int $uint32
+     * @return string
+     */
+    protected function convertUInt32ToStr(int $uint32): string
+    {
+        return self::FORMAT_STRINGS[$uint32] ?? 'Unknown format';
+    }
+
+    public function parse(): void
+    {
+        parent::parse();
+
+        $format = $this->data["format"];
+        $this->data["formatText"] = $this->convertUInt32ToStr($format);
+    }
 }
