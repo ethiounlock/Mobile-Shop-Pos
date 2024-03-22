@@ -1,11 +1,7 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
+declare(strict_types=1);
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Frame;
@@ -23,65 +19,51 @@ class Page extends AbstractFrameReflower
     /**
      * Cache of the callbacks array
      *
-     * @var array
+     * @var callable[]|null
      */
-    private $_callbacks;
+    private ?array $callbacks = null;
 
     /**
      * Cache of the canvas
      *
      * @var \Dompdf\Canvas
      */
-    private $_canvas;
+    private \Dompdf\Canvas $canvas;
 
     /**
      * Page constructor.
+     *
      * @param PageFrameDecorator $frame
      */
-    function __construct(PageFrameDecorator $frame)
+    public function __construct(PageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
     /**
+     * Applies page style to the frame
+     *
      * @param Frame $frame
-     * @param $page_number
+     * @param int $page_number
      */
-    function apply_page_style(Frame $frame, $page_number)
+    private function applyPageStyle(Frame $frame, int $page_number): void
     {
-        $style = $frame->get_style();
-        $page_styles = $style->get_stylesheet()->get_page_styles();
+        $style = $frame->getStyle();
+        $pageStyles = $style->getStylesheet()->getPageStyles();
 
-        // http://www.w3.org/TR/CSS21/page.html#page-selectors
-        if (count($page_styles) > 1) {
-            $odd = $page_number % 2 == 1;
-            $first = $page_number == 1;
+        if (count($pageStyles) > 1) {
+            $odd = $page_number % 2 === 1;
+            $first = $page_number === 1;
 
-            $style = clone $page_styles["base"];
+            $style = clone $pageStyles["base"];
 
-            // FIXME RTL
-            if ($odd && isset($page_styles[":right"])) {
-                $style->merge($page_styles[":right"]);
+            foreach (["right", "odd", "left", "even", "first"] as $key) {
+                if (isset($pageStyles[":{$key}"]) && ($key === "odd" xor !$odd) && ($key === "even" xor $odd) && ($key === "first" xor $first)) {
+                    $style->merge($pageStyles[":{$key}"]);
+                }
             }
 
-            if ($odd && isset($page_styles[":odd"])) {
-                $style->merge($page_styles[":odd"]);
-            }
-
-            // FIXME RTL
-            if (!$odd && isset($page_styles[":left"])) {
-                $style->merge($page_styles[":left"]);
-            }
-
-            if (!$odd && isset($page_styles[":even"])) {
-                $style->merge($page_styles[":even"]);
-            }
-
-            if ($first && isset($page_styles[":first"])) {
-                $style->merge($page_styles[":first"]);
-            }
-
-            $frame->set_style($style);
+            $frame->setStyle($style);
         }
     }
 
@@ -91,82 +73,70 @@ class Page extends AbstractFrameReflower
      *
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(?BlockFrameDecorator $block = null): void
     {
-        $fixed_children = [];
-        $prev_child = null;
-        $child = $this->_frame->get_first_child();
-        $current_page = 0;
+        $fixedChildren = [];
+        $prevChild = null;
+        $child = $this->_frame->getFirstChild();
+        $currentPage = 0;
 
         while ($child) {
-            $this->apply_page_style($this->_frame, $current_page + 1);
+            $this->applyPageStyle($this->_frame, $currentPage + 1);
 
-            $style = $this->_frame->get_style();
+            $cb = $this->_frame->getContainingBlock();
+            $left = (float)$style->lengthInPt($style->marginLeft, $cb["w"]);
+            $right = (float)$style->lengthInPt($style->marginRight, $cb["w"]);
+            $top = (float)$style->lengthInPt($style->marginTop, $cb["h"]);
+            $bottom = (float)$style->lengthInPt($style->marginBottom, $cb["h"]);
 
-            // Pages are only concerned with margins
-            $cb = $this->_frame->get_containing_block();
-            $left = (float)$style->length_in_pt($style->margin_left, $cb["w"]);
-            $right = (float)$style->length_in_pt($style->margin_right, $cb["w"]);
-            $top = (float)$style->length_in_pt($style->margin_top, $cb["h"]);
-            $bottom = (float)$style->length_in_pt($style->margin_bottom, $cb["h"]);
+            $contentX = $cb["x"] + $left;
+            $contentY = $cb["y"] + $top;
+            $contentWidth = $cb["w"] - $left - $right;
+            $contentHeight = $this->_frame->getAvailableHeight() - $top - $bottom;
 
-            $content_x = $cb["x"] + $left;
-            $content_y = $cb["y"] + $top;
-            $content_width = $cb["w"] - $left - $right;
-            $content_height = $cb["h"] - $top - $bottom;
-
-            // Only if it's the first page, we save the nodes with a fixed position
-            if ($current_page == 0) {
-                $children = $child->get_children();
-                foreach ($children as $onechild) {
-                    if ($onechild->get_style()->position === "fixed") {
-                        $fixed_children[] = $onechild->deep_copy();
+            if ($currentPage === 0) {
+                $children = $child->getChildren();
+                foreach ($children as $oneChild) {
+                    if ($oneChild->getStyle()->position === "fixed") {
+                        $fixedChildren[] = $oneChild->deepCopy();
                     }
                 }
-                $fixed_children = array_reverse($fixed_children);
+                $fixedChildren = array_reverse($fixedChildren);
             }
 
-            $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
+            $child->setContainingBlock($contentX, $contentY, $contentWidth, $contentHeight);
 
-            // Check for begin reflow callback
-            $this->_check_callbacks("begin_page_reflow", $child);
+            $this->_checkCallbacks("begin_page_reflow", $child);
 
-            //Insert a copy of each node which have a fixed position
-            if ($current_page >= 1) {
-                foreach ($fixed_children as $fixed_child) {
-                    $child->insert_child_before($fixed_child->deep_copy(), $child->get_first_child());
+            if ($currentPage >= 1) {
+                foreach ($fixedChildren as $fixedChild) {
+                    $child->insertChildBefore($fixedChild->deepCopy(), $child->getFirstChild());
                 }
             }
 
             $child->reflow();
-            $next_child = $child->get_next_sibling();
+            $nextChild = $child->getNextSibling();
 
-            // Check for begin render callback
-            $this->_check_callbacks("begin_page_render", $child);
+            $this->_checkCallbacks("begin_page_render", $child);
 
-            // Render the page
-            $this->_frame->get_renderer()->render($child);
+            $this->_frame->getRenderer()->render($child);
 
-            // Check for end render callback
-            $this->_check_callbacks("end_page_render", $child);
+            $this->_checkCallbacks("end_page_render", $child);
 
-            if ($next_child) {
-                $this->_frame->next_page();
+            if ($nextChild) {
+                $this->_frame->nextPage();
             }
 
-            // Wait to dispose of all frames on the previous page
-            // so callback will have access to them
-            if ($prev_child) {
-                $prev_child->dispose(true);
+            if ($prevChild) {
+                $prevChild->dispose(true);
             }
-            $prev_child = $child;
-            $child = $next_child;
-            $current_page++;
+            $prevChild = $child;
+            $child = $nextChild;
+            $currentPage++;
         }
 
-        // Dispose of previous page if it still exists
-        if ($prev_child) {
-            $prev_child->dispose(true);
+        if ($prevChild) {
+            $prevChild->dispose(true);
         }
     }
 
@@ -177,29 +147,15 @@ class Page extends AbstractFrameReflower
      * @param string $event the type of event
      * @param Frame $frame  the frame that event is triggered on
      */
-    protected function _check_callbacks($event, $frame)
+    protected function _checkCallbacks(string $event, Frame $frame): void
     {
-        if (!isset($this->_callbacks)) {
-            $dompdf = $this->_frame->get_dompdf();
-            $this->_callbacks = $dompdf->get_callbacks();
-            $this->_canvas = $dompdf->get_canvas();
+        if (!$this->callbacks) {
+            $dompdf = $this->_frame->getDompdf();
+            $this->callbacks = $dompdf->getCallbacks();
+            $this->canvas = $dompdf->getCanvas();
         }
 
-        if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {
+        if (is_array($this->callbacks) && isset($this->callbacks[$event])) {
             $info = [
-                0 => $this->_canvas, "canvas" => $this->_canvas,
-                1 => $frame,         "frame"  => $frame,
-            ];
-            $fs = $this->_callbacks[$event];
-            foreach ($fs as $f) {
-                if (is_callable($f)) {
-                    if (is_array($f)) {
-                        $f[0]->{$f[1]}($info);
-                    } else {
-                        $f($info);
-                    }
-                }
-            }
-        }
-    }
-}
+                0 => $this->canvas, "canvas" => $this->canvas,
+                
