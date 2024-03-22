@@ -1,24 +1,21 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
+declare(strict_types=1);
+
 namespace Dompdf;
 
+use Dompdf\Exception;
+
 /**
- * Executes inline PHP code during the rendering process
- *
- * @package dompdf
+ * Class PhpEvaluator
+ * @package Dompdf
  */
 class PhpEvaluator
 {
-
     /**
      * @var Canvas
      */
-    protected $_canvas;
+    private $canvas;
 
     /**
      * PhpEvaluator constructor.
@@ -26,38 +23,48 @@ class PhpEvaluator
      */
     public function __construct(Canvas $canvas)
     {
-        $this->_canvas = $canvas;
+        $this->canvas = $canvas;
     }
 
     /**
-     * @param $code
+     * @param string $code
      * @param array $vars
+     * @return void
+     * @throws Exception
      */
-    public function evaluate($code, $vars = [])
+    public function evaluate(string $code, array $vars = []): void
     {
-        if (!$this->_canvas->get_dompdf()->getOptions()->getIsPhpEnabled()) {
+        if (!$this->canvas->getDomPDF()->getOptions()->getIsPhpEnabled()) {
             return;
         }
 
-        // Set up some variables for the inline code
-        $pdf = $this->_canvas;
-        $fontMetrics = $pdf->get_dompdf()->getFontMetrics();
-        $PAGE_NUM = $pdf->get_page_number();
-        $PAGE_COUNT = $pdf->get_page_count();
-
-        // Override those variables if passed in
-        foreach ($vars as $k => $v) {
-            $$k = $v;
+        try {
+            $this->executePHPCode($code, $vars);
+        } catch (Exception $e) {
+            throw new Exception('Error evaluating PHP code: ' . $e->getMessage(), 0, $e);
         }
-
-        eval($code);
     }
 
     /**
      * @param Frame $frame
+     * @return void
+     * @throws Exception
      */
-    public function render(Frame $frame)
+    public function render(Frame $frame): void
     {
-        $this->evaluate($frame->get_node()->nodeValue);
+        $this->evaluate($frame->getNode()->nodeValue);
     }
-}
+
+    /**
+     * @param string $code
+     * @param array $vars
+     * @return void
+     * @throws Exception
+     */
+    private function executePHPCode(string $code, array $vars = []): void
+    {
+        // Set up some variables for the inline code
+        extract($vars);
+        $pdf = $this->canvas;
+        $fontMetrics = $pdf->getDomPDF()->getFontMetrics();
+        $PAGE_NUM = $pdf
