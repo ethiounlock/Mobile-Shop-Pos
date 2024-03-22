@@ -1,14 +1,10 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib;
 
 use FontLib\Exception\FontNotFoundException;
+use FontLib\Stream;
+use FontLib\Iconv;
 
 /**
  * Generic font file.
@@ -21,14 +17,14 @@ class Font {
   /**
    * @param string $file The font file
    *
-   * @return TrueType\File|null $file
+   * @return TrueType\File|OpenType\File|WOFF\File|TrueType\Collection|EOT\File|null $file
    */
-  public static function load($file) {
-      if(!file_exists($file)){
-          throw new FontNotFoundException($file);
-      }
+  public static function load(string $file) {
+    if(!file_exists($file)){
+        throw new FontNotFoundException($file);
+    }
 
-    $header = file_get_contents($file, false, null, null, 4);
+    $header = Stream::getContents($file, 4);
     $class  = null;
 
     switch ($header) {
@@ -52,7 +48,7 @@ class Font {
 
       // Unknown type or EOT
       default:
-        $magicNumber = file_get_contents($file, false, null, 34, 2);
+        $magicNumber = Stream::getContents($file, 2, 34);
 
         if ($magicNumber === "LP") {
           $class = "EOT\\File";
@@ -62,7 +58,7 @@ class Font {
     if ($class) {
       $class = "FontLib\\$class";
 
-      /** @var TrueType\File $obj */
+      /** @var TrueType\File|OpenType\File|WOFF\File|TrueType\Collection|EOT\File $obj */
       $obj = new $class;
       $obj->load($file);
 
@@ -72,18 +68,12 @@ class Font {
     return null;
   }
 
-  static function d($str) {
+  static function d(string $str) {
     if (!self::$debug) {
       return;
     }
-    echo "$str\n";
+    error_log("$str\n");
   }
 
-  static function UTF16ToUTF8($str) {
-    return mb_convert_encoding($str, "utf-8", "utf-16");
-  }
-
-  static function UTF8ToUTF16($str) {
-    return mb_convert_encoding($str, "utf-16", "utf-8");
-  }
-}
+  static function UTF16ToUTF8(string $str) {
+    return Iconv
