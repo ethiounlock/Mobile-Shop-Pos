@@ -1,1 +1,5 @@
-.test { grid-template-columns: [] 100px; }
+.test {
+  display: grid;
+  grid-template-columns: auto 100px;
+}
+
