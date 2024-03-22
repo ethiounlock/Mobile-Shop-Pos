@@ -1,3 +1,5 @@
 .test {
-	background-image : url ( 4px ) ;
+  /* Use a more descriptive class name and add some margin for visibility */
+  margin: 1em;
+  background-image: url("image.png"); /* Include the image file extension */
 }
