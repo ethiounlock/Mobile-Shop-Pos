@@ -1,10 +1,13 @@
 <?php
 
-spl_autoload_register(function($class)
+function autoloadClass($class)
 {
-    $file = __DIR__.'/../lib/'.strtr($class, '\\', '/').'.php';
+    $file = __DIR__ . '/../lib/' . str_replace('\\', '/', $class) . '.php';
+
+    // Check if the file exists before requiring it
     if (file_exists($file)) {
         require $file;
-        return true;
     }
-});
+}
+
+spl_autoload_register('autoloadClass');
