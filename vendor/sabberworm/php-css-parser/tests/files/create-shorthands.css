@@ -1,6 +1,24 @@
+:root {
+  --font-size: 2em;
+  --font-family: Helvetica, Arial, sans-serif;
+  --font-weight: bold;
+  --border-width: 2px;
+  --border-color: #999;
+  --border-style: dotted;
+  --background-color: #fff;
+  --background-image: url('foobar.png');
+  --background-repeat: repeat-y;
+  --margin-top: 2px;
+  --margin-right: 3px;
+  --margin-bottom: 4px;
+  --margin-left: 5px;
+}
+
 body {
-  font-size: 2em; font-family: Helvetica,Arial,sans-serif; font-weight: bold;
-  border-width: 2px; border-color: #999; border-style: dotted;
-  background-color: #fff; background-image: url('foobar.png'); background-repeat: repeat-y;
-  margin-top: 2px; margin-right: 3px; margin-bottom: 4px; margin-left: 5px;
+  font-size: var(--font-size);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight);
+  border: var(--border-width) var(--border-style) var(--border-color);
+  background: var(--background-color) var(--background-image) var(--background-repeat);
+  margin: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left);
 }
