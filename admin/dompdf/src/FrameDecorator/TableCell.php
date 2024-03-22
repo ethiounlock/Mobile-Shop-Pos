@@ -1,10 +1,5 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -19,7 +14,14 @@ use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 class TableCell extends BlockFrameDecorator
 {
 
-    protected $_resolved_borders;
+    /**
+     * @var array
+     */
+    protected $_resolved_borders = [];
+
+    /**
+     * @var int
+     */
     protected $_content_height;
 
     //........................................................................
@@ -29,16 +31,15 @@ class TableCell extends BlockFrameDecorator
      * @param Frame $frame
      * @param Dompdf $dompdf
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
-        $this->_resolved_borders = [];
         $this->_content_height = 0;
     }
 
     //........................................................................
 
-    function reset()
+    public function reset()
     {
         parent::reset();
         $this->_resolved_borders = [];
@@ -49,26 +50,52 @@ class TableCell extends BlockFrameDecorator
     /**
      * @return int
      */
-    function get_content_height()
+    public function getContentHeight(): int
     {
         return $this->_content_height;
     }
 
     /**
-     * @param $height
+     * @param int $height
      */
-    function set_content_height($height)
+    public function setContentHeight(int $height): void
     {
         $this->_content_height = $height;
     }
 
     /**
-     * @param $height
+     * @param string $side
+     * @param array $border_spec
      */
-    function set_cell_height($height)
+    public function setResolvedBorder(string $side, array $border_spec): void
     {
-        $style = $this->get_style();
-        $v_space = (float)$style->length_in_pt(
+        $this->_resolved_borders[$side] = $border_spec;
+    }
+
+    /**
+     * @param string $side
+     * @return array
+     */
+    public function getResolvedBorder(string $side): array
+    {
+        return $this->_resolved_borders[$side] ?? [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getResolvedBorders(): array
+    {
+        return $this->_resolved_borders;
+    }
+
+    /**
+     * @param float $height
+     */
+    public function setCellHeight(float $height): void
+    {
+        $style = $this->getStyle();
+        $vSpace = (float)$style->lengthInPt(
             [
                 $style->margin_top,
                 $style->padding_top,
@@ -77,39 +104,40 @@ class TableCell extends BlockFrameDecorator
                 $style->padding_bottom,
                 $style->margin_bottom
             ],
-            (float)$style->length_in_pt($style->height)
+            (float)$style->lengthInPt($style->height)
         );
 
-        $new_height = $height - $v_space;
-        $style->height = $new_height;
+        $newHeight = $height - $vSpace;
+        $style->height = $newHeight;
 
-        if ($new_height > $this->_content_height) {
-            $y_offset = 0;
+        if ($newHeight > $this->_content_height) {
+            $yOffset = 0;
 
             // Adjust our vertical alignment
             switch ($style->vertical_align) {
                 default:
                 case "baseline":
-                    // FIXME: this isn't right
-
+                    // Move the content up so the baseline of the first line is aligned with the cell's baseline
+                    $yOffset = $this->getBaselineOffset();
+                    break;
                 case "top":
                     // Don't need to do anything
                     return;
 
                 case "middle":
-                    $y_offset = ($new_height - $this->_content_height) / 2;
+                    $yOffset = ($newHeight - $this->_content_height) / 2;
                     break;
 
                 case "bottom":
-                    $y_offset = $new_height - $this->_content_height;
+                    $yOffset = $newHeight - $this->_content_height;
                     break;
             }
 
-            if ($y_offset) {
+            if ($yOffset) {
                 // Move our children
-                foreach ($this->get_line_boxes() as $line) {
-                    foreach ($line->get_frames() as $frame) {
-                        $frame->move(0, $y_offset);
+                foreach ($this->getLineBoxes() as $line) {
+                    foreach ($line->getFrames() as $frame) {
+                        $frame->move(0, $yOffset);
                     }
                 }
             }
@@ -117,28 +145,34 @@ class TableCell extends BlockFrameDecorator
     }
 
     /**
-     * @param $side
-     * @param $border_spec
+     * Calculate the offset needed to align the first line's baseline with the cell's baseline
+     *
+     * @return float
      */
-    function set_resolved_border($side, $border_spec)
+    protected function getBaselineOffset(): float
     {
-        $this->_resolved_borders[$side] = $border_spec;
-    }
+        // Calculate the height of the first line box
+        $lineBoxes = $this->getLineBoxes();
+        $firstLineBox = reset($lineBoxes);
+        $firstLineHeight = $firstLineBox->getHeight();
 
-    /**
-     * @param $side
-     * @return mixed
-     */
-    function get_resolved_border($side)
-    {
-        return $this->_resolved_borders[$side];
-    }
+        // Calculate the distance from the top of the cell to the top of the first line box
+        $style = $this->getStyle();
+        $topOffset = (float)$style->lengthInPt(
+            [
+                $style->margin_top,
+                $style->padding_top,
+                $style->border_top_width
+            ]
+        );
 
-    /**
-     * @return array
-     */
-    function get_resolved_borders()
-    {
-        return $this->_resolved_borders;
+        // Calculate the distance from the top of the first line box to its baseline
+        $lineHeight = $firstLineBox->getLineHeight();
+        $baselineOffset = $lineHeight - $firstLineHeight;
+
+        // Calculate the total offset needed
+        $offset = $topOffset + $baselineOffset;
+
+        return $offset;
     }
 }
