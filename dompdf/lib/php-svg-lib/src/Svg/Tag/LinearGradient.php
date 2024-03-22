@@ -1,13 +1,6 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg\Tag;
-
 
 use Svg\Gradient;
 use Svg\Style;
@@ -20,64 +13,62 @@ class LinearGradient extends AbstractTag
     protected $y2;
 
     /** @var Gradient\Stop[] */
-    protected $stops = array();
+    protected array $stops = [];
 
-    public function start($attributes)
+    public function start(array $attributes): void
     {
         parent::start($attributes);
 
-        if (isset($attributes['x1'])) {
-            $this->x1 = $attributes['x1'];
-        }
-        if (isset($attributes['y1'])) {
-            $this->y1 = $attributes['y1'];
-        }
-        if (isset($attributes['x2'])) {
-            $this->x2 = $attributes['x2'];
-        }
-        if (isset($attributes['y2'])) {
-            $this->y2 = $attributes['y2'];
-        }
+        $this->x1 = $attributes['x1'] ?? null;
+        $this->y1 = $attributes['y1'] ?? null;
+        $this->x2 = $attributes['x2'] ?? null;
+        $this->y2 = $attributes['y2'] ?? null;
     }
 
-    public function getStops() {
+    public function getStops(): array
+    {
         if (empty($this->stops)) {
-            foreach ($this->children as $_child) {
-                if ($_child->tagName != "stop") {
-                    continue;
+            $this->stops = array_filter(array_map(function ($child) {
+                if ($child->tagName !== "stop") {
+                    return null;
                 }
 
-                $_stop = new Gradient\Stop();
-                $_attributes = $_child->attributes;
+                $attributes = $child->attributes;
 
-                // Style
-                if (isset($_attributes["style"])) {
-                    $_style = Style::parseCssStyle($_attributes["style"]);
+                $style = Style::parseCssStyle($attributes["style"] ?? '');
+                $offset = $attributes["offset"] ?? null;
 
-                    if (isset($_style["stop-color"])) {
-                        $_stop->color = Style::parseColor($_style["stop-color"]);
-                    }
+                $stop = new Gradient\Stop();
 
-                    if (isset($_style["stop-opacity"])) {
-                        $_stop->opacity = max(0, min(1.0, $_style["stop-opacity"]));
-                    }
+                if (isset($style["stop-color"])) {
+                    $stop->color = Style::parseColor($style["stop-color"]);
                 }
 
-                // Attributes
-                if (isset($_attributes["offset"])) {
-                    $_stop->offset = $_attributes["offset"];
-                }
-                if (isset($_attributes["stop-color"])) {
-                    $_stop->color = Style::parseColor($_attributes["stop-color"]);
-                }
-                if (isset($_attributes["stop-opacity"])) {
-                    $_stop->opacity = max(0, min(1.0, $_attributes["stop-opacity"]));
+                if (isset($style["stop-opacity"])) {
+                    $stop->opacity = max(0, min(1.0, $style["stop-opacity"]));
                 }
 
-                $this->stops[] = $_stop;
-            }
+                if ($offset) {
+                    $stop->offset = $offset;
+                }
+
+                if (isset($attributes["stop-color"])) {
+                    $stop->color = Style::parseColor($attributes["stop-color"]);
+                }
+
+                if (isset($attributes["stop-opacity"])) {
+                    $stop->opacity = max(0, min(1.0, $attributes["stop-opacity"]));
+                }
+
+                return $stop;
+            }, $this->children));
         }
+
+        // Validate offset values
+        $this->stops = array_values(array_filter($this->stops, function (Gradient\Stop $stop) {
+            return is_numeric($stop->offset) && $stop->offset >= 0 && $stop->offset <= 100;
+        }));
 
         return $this->stops;
     }
-} 
+}
