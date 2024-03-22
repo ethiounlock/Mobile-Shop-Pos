@@ -1,27 +1,39 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg\Tag;
 
 use Sabberworm\CSS;
 
+/**
+ * Class StyleTag
+ * @package Svg\Tag
+ *
+ * @author Fabien MÃ©nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
+ */
 class StyleTag extends AbstractTag
 {
-    protected $text = "";
+    /**
+     * @var string
+     */
+    protected $text = '';
 
-    public function end()
-    {
-        $parser = new CSS\Parser($this->text);
-        $this->document->appendStyleSheet($parser->parse());
-    }
-
-    public function appendText($text)
+    /**
+     * @param string $text
+     */
+    public function appendText(string $text): void
     {
         $this->text .= $text;
     }
-} 
+
+    /**
+     * @inheritdoc
+     */
+    public function end(): void
+    {
+        if (!empty($this->text)) {
+            $parser = new CSS\Parser($this->text);
+            $this->document->appendStyleSheet($parser->parse());
+        }
+    }
+}
