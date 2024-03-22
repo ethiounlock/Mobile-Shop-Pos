@@ -1,3 +1,6 @@
 @media print {
-  @charset 'utf-16';
+  @charset 'utf-8';
+  @page {
+    margin: 1cm;
+  }
 }
