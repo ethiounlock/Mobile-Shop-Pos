@@ -2,74 +2,70 @@
 
 namespace Sabberworm\CSS\Property;
 
+use Sabberworm\CSS\OutputFormat;
+use Sabberworm\CSS\CSSList\CSSList;
+
 /**
-* CSSNamespace represents an @namespace rule.
-*/
-class CSSNamespace implements AtRule {
-	private $mUrl;
-	private $sPrefix;
-	private $iLineNo;
-	protected $aComments;
-	
-	public function __construct($mUrl, $sPrefix = null, $iLineNo = 0) {
-		$this->mUrl = $mUrl;
-		$this->sPrefix = $sPrefix;
-		$this->iLineNo = $iLineNo;
-		$this->aComments = array();
-	}
+ * CSSNamespace represents an @namespace rule.
+ */
+class CSSNamespace implements AtRule
+{
+    private $mUrl;
+    private $sPrefix;
+    private $iLineNo;
+    protected $aComments;
 
-	/**
-	 * @return int
-	 */
-	public function getLineNo() {
-		return $this->iLineNo;
-	}
+    /**
+     * CSSNamespace constructor.
+     *
+     * @param CSSList|string          $mUrl
+     * @param string|null             $sPrefix
+     * @param int                     $iLineNo
+     */
+    public function __construct($mUrl, $sPrefix = null, $iLineNo = 0)
+    {
+        $this->mUrl = is_a($mUrl, CSSList::class) ? $mUrl : new CSSList([$mUrl]);
+        $this->sPrefix = $sPrefix;
+        $this->iLineNo = $iLineNo;
+        $this->aComments = [];
+    }
 
-	public function __toString() {
-		return $this->render(new \Sabberworm\CSS\OutputFormat());
-	}
+    /**
+     * @return int
+     */
+    public function getLineNo(): int
+    {
+        return $this->iLineNo;
+    }
 
-	public function render(\Sabberworm\CSS\OutputFormat $oOutputFormat) {
-		return '@namespace '.($this->sPrefix === null ? '' : $this->sPrefix.' ').$this->mUrl->render($oOutputFormat).';';
-	}
-	
-	public function getUrl() {
-		return $this->mUrl;
-	}
+    public function __toString()
+    {
+        return $this->render(new OutputFormat());
+    }
 
-	public function getPrefix() {
-		return $this->sPrefix;
-	}
+    public function render(OutputFormat $oOutputFormat): string
+    {
+        return '@namespace ' . ($this->sPrefix ?? '') . $this->mUrl->render($oOutputFormat) . ';';
+    }
 
-	public function setUrl($mUrl) {
-		$this->mUrl = $mUrl;
-	}
+    public function getUrl()
+    {
+        return $this->mUrl;
+    }
 
-	public function setPrefix($sPrefix) {
-		$this->sPrefix = $sPrefix;
-	}
+    public function getPrefix()
+    {
+        return $this->sPrefix;
+    }
 
-	public function atRuleName() {
-		return 'namespace';
-	}
+    public function setUrl($mUrl)
+    {
+        $this->mUrl = $mUrl;
+    }
 
-	public function atRuleArgs() {
-		$aResult = array($this->mUrl);
-		if($this->sPrefix) {
-			array_unshift($aResult, $this->sPrefix);
-		}
-		return $aResult;
-	}
+    public function setPrefix($sPrefix)
+    {
+        $this->sPrefix = $sPrefix;
+    }
 
-	public function addComments(array $aComments) {
-		$this->aComments = array_merge($this->aComments, $aComments);
-	}
 
-	public function getComments() {
-		return $this->aComments;
-	}
-
-	public function setComments(array $aComments) {
-		$this->aComments = $aComments;
-	}
-}
