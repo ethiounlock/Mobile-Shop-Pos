@@ -1,1 +1,51 @@
-/* Test comment
+/**
+ * Test comment
+ */
+
+// Function to add two numbers
+function addNumbers(num1, num2) {
+  if (typeof num1 !== 'number' || typeof num2 !== 'number') {
+    throw new Error('Both arguments must be numbers');
+  }
+
+  return num1 + num2;
+}
+
+// Function to subtract two numbers
+function subtractNumbers(num1, num2) {
+  if (typeof num1 !== 'number' || typeof num2 !== 'number') {
+    throw new Error('Both arguments must be numbers');
+  }
+
+  return num1 - num2;
+}
+
+// Function to multiply two numbers
+function multiplyNumbers(num1, num2) {
+  if (typeof num1 !== 'number' || typeof num2 !== 'number') {
+    throw new Error('Both arguments must be numbers');
+  }
+
+  return num1 * num2;
+}
+
+// Function to divide two numbers
+function divideNumbers(num1, num2) {
+  if (typeof num1 !== 'number' || typeof num2 !== 'number') {
+    throw new Error('Both arguments must be numbers');
+  }
+
+  if (num2 === 0) {
+    throw new Error('Divisor cannot be zero');
+  }
+
+  return num1 / num2;
+}
+
+// Example usage:
+
+console.log(addNumbers(2, 3)); // Output: 5
+console.log(subtractNumbers(7, 4)); // Output: 3
+console.log(multiplyNumbers(3, 4)); // Output: 12
+console.log(divideNumbers(8, 2)); // Output: 4
+
