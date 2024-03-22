@@ -1,10 +1,5 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
 namespace FontLib\Table\Type;
 
 use FontLib\Font;
@@ -15,39 +10,67 @@ use FontLib\BinaryStream;
  *
  * @package php-font-lib
  */
-class nameRecord extends BinaryStream {
-  public $platformID;
-  public $platformSpecificID;
-  public $languageID;
-  public $nameID;
-  public $length;
-  public $offset;
-  public $string;
+class NameRecord extends BinaryStream
+{
+    /** @var int */
+    public int $platformID;
 
-  public static $format = array(
-    "platformID"         => self::uint16,
-    "platformSpecificID" => self::uint16,
-    "languageID"         => self::uint16,
-    "nameID"             => self::uint16,
-    "length"             => self::uint16,
-    "offset"             => self::uint16,
-  );
+    /** @var int */
+    public int $platformSpecificID;
 
-  public function map($data) {
-    foreach ($data as $key => $value) {
-      $this->$key = $value;
+    /** @var int */
+    public int $languageID;
+
+    /** @var int */
+    public int $nameID;
+
+    /** @var int */
+    public int $length;
+
+    /** @var int */
+    public int $offset;
+
+    /** @var string */
+    public string $string;
+
+    /**
+     * NameRecord constructor.
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        $this->map($data);
     }
-  }
 
-  public function getUTF8() {
-    return $this->string;
-  }
+    /**
+     * @param array $data
+     */
+    public function map(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
+        }
+    }
 
-  public function getUTF16() {
-    return Font::UTF8ToUTF16($this->string);
-  }
+    /**
+     * @return string
+     */
+    public function getUTF8(): string
+    {
+        return $this->string;
+    }
 
-  function __toString() {
-    return $this->string;
-  }
-}
+    /**
+     * @return string
+     */
+    public function getUTF16(): string
+    {
+        return Font::UTF8ToUTF16($this->string);
+    }
+
+    /**
+     * @return string
+     */
+    public function
