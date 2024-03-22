@@ -1,8 +1,19 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
 
-group :development, :test do
-  gem 'jekyll', '~> 3.7.0'
-  gem 'jekyll-redirect-from', '~> 0.13.0'
+source 'https://rubygems.org' do
+  # RubyGems mirror in case the primary one goes down
+  gem 'jekyll', '~> 3.7.0', mirror 'https://ruby.taobao.org'
+  gem 'jekyll-redirect-from', '~> 0.13.0', gem_binary: 'gem'
+  gem 'jekyll-redirect-from', '~> 0.13.0', gem_binary: 'gem' do
+    git_source(:github) { |repo_name| "https://github.com/laurilehmijoki/#{repo_name}.git" }
+  end
   gem 'jekyll-sitemap', '~> 1.1.1'
   gem 'jekyll-toc', '~> 0.5.1'
+end
+
+# Group the development and test dependencies together
+group :development, :test do
+  # Add the required gems for development and testing
+  gem 'bundler', '~> 2.1.0'
+  gem 'rspec-jekyll', '~> 1.0.0'
 end
