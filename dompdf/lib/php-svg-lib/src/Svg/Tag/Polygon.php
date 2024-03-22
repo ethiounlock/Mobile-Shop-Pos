@@ -1,33 +1,36 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
-
 namespace Svg\Tag;
+
+use Svg\Document;
+use Svg\Surface;
 
 class Polygon extends Shape
 {
     public function start($attributes)
     {
-        $tmp = array();
-        preg_match_all('/([\-]*[0-9\.]+)/', $attributes['points'], $tmp);
-
-        $points = $tmp[0];
-        $count = count($points);
+        $points = $this->parsePointsAttribute($attributes['points']);
 
         $surface = $this->document->getSurface();
-        list($x, $y) = $points;
-        $surface->moveTo($x, $y);
+        $surface->moveTo($points[0], $points[1]);
 
-        for ($i = 2; $i < $count; $i += 2) {
-            $x = $points[$i];
-            $y = $points[$i + 1];
-            $surface->lineTo($x, $y);
+        for ($i = 2; $i < count($points); $i += 2) {
+            $surface->lineTo($points[$i], $points[$i + 1]);
         }
 
         $surface->closePath();
     }
-} 
+
+    private function parsePointsAttribute(string $pointsAttribute): array
+    {
+        $points = explode(' ', $pointsAttribute);
+        $parsedPoints = [];
+
+        foreach ($points as $point) {
+            $coordinates = explode(',', $point);
+            $parsedPoints[] = (float) $coordinates[0];
+            $parsedPoints[] = (float) $coordinates[1];
+        }
+
+        return $parsedPoints;
+    }
+}
