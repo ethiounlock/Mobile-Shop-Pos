@@ -1,37 +1,46 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg\Tag;
 
+use Svg\Document;
+
+/**
+ * Class Ellipse
+ * @package Svg\Tag
+ *
+ * @author Fabien MÃ©nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
+ */
 class Ellipse extends Shape
 {
-    protected $cx = 0;
-    protected $cy = 0;
-    protected $rx = 0;
-    protected $ry = 0;
+    protected int $cx = 0;
+    protected int $cy = 0;
+    protected int $rx = 0;
+    protected int $ry = 0;
 
-    public function start($attributes)
+    /**
+     * @param array $attributes
+     */
+    public function start(array $attributes): void
     {
-        parent::start($attributes);
+        if (!isset($attributes['cx']) || !is_numeric($attributes['cx'])) {
+            throw new \InvalidArgumentException('Missing or invalid "cx" attribute.');
+        }
+        $this->cx = (int) ($attributes['cx'] ?? 0);
 
-        if (isset($attributes['cx'])) {
-            $this->cx = $attributes['cx'];
+        if (!isset($attributes['cy']) || !is_numeric($attributes['cy'])) {
+            throw new \InvalidArgumentException('Missing or invalid "cy" attribute.');
         }
-        if (isset($attributes['cy'])) {
-            $this->cy = $attributes['cy'];
-        }
-        if (isset($attributes['rx'])) {
-            $this->rx = $attributes['rx'];
-        }
-        if (isset($attributes['ry'])) {
-            $this->ry = $attributes['ry'];
-        }
+        $this->cy = (int) ($attributes['cy'] ?? 0);
 
-        $this->document->getSurface()->ellipse($this->cx, $this->cy, $this->rx, $this->ry, 0, 0, 360, false);
-    }
-} 
+        if (!isset($attributes['rx']) || !is_numeric($attributes['rx'])) {
+            throw new \InvalidArgumentException('Missing or invalid "rx" attribute.');
+        }
+        $this->rx = (int) ($attributes['rx'] ?? 0);
+
+        if (!isset($attributes['ry']) || !is_numeric($attributes['ry'])) {
+            throw new \InvalidArgumentException('Missing or invalid "ry" attribute.');
+        }
+        $this->ry = (int) ($attributes['ry'] ?? 0);
+
+
