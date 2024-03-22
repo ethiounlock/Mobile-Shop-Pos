@@ -1,16 +1,12 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
+declare(strict_types=1);
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Adapter\CPDF;
 use Dompdf\Frame;
+use Dompdf\FrameDecorator\Text;
 
 /**
  * Renders text frames
@@ -20,7 +16,7 @@ use Dompdf\Frame;
 class Text extends AbstractRenderer
 {
     /** Thickness of underline. Screen: 0.08, print: better less, e.g. 0.04 */
-    const DECO_THICKNESS = 0.02;
+    public const DECO_THICKNESS = 0.02;
 
     //Tweaking if $base and $descent are not accurate.
     //Check method_exists( $this->_canvas, "get_cpdf" )
@@ -29,21 +25,21 @@ class Text extends AbstractRenderer
     //  But $size and $size-$height seem to be accurate enough
 
     /** Relative to bottom of text, as fraction of height */
-    const UNDERLINE_OFFSET = 0.0;
+    public const UNDERLINE_OFFSET = 0.0;
 
     /** Relative to top of text */
-    const OVERLINE_OFFSET = 0.0;
+    public const OVERLINE_OFFSET = 0.0;
 
     /** Relative to centre of text. */
-    const LINETHROUGH_OFFSET = 0.0;
+    public const LINETHROUGH_OFFSET = 0.0;
 
     /** How far to extend lines past either end, in pt */
-    const DECO_EXTENSION = 0.0;
+    public const DECO_EXTENSION = 0.0;
 
     /**
-     * @param \Dompdf\FrameDecorator\Text $frame
+     * @param Text $frame
      */
-    function render(Frame $frame)
+    public function render(Frame $frame): void
     {
         $text = $frame->get_text();
         if (trim($text) === "") {
@@ -51,7 +47,7 @@ class Text extends AbstractRenderer
         }
 
         $style = $frame->get_style();
-        list($x, $y) = $frame->get_position();
+        [$x, $y] = $frame->get_position();
         $cb = $frame->get_containing_block();
 
         if (($ml = $style->margin_left) === "auto" || $ml === "none") {
@@ -102,13 +98,13 @@ class Text extends AbstractRenderer
         $underline_position = -0.08;
 
         if ($this->_canvas instanceof CPDF) {
-            $cpdf_font = $this->_canvas->get_cpdf()->fonts[$style->font_family];
+            $cpdf_font = $this->_canvas->get_cpdf()?->fonts[$style->font_family] ?? null;
 
-            if (isset($cpdf_font["UnderlinePosition"])) {
+            if ($cpdf_font && isset($cpdf_font["UnderlinePosition"])) {
                 $underline_position = $cpdf_font["UnderlinePosition"] / 1000;
             }
 
-            if (isset($cpdf_font["UnderlineThickness"])) {
+            if ($cpdf_font && isset($cpdf_font["UnderlineThickness"])) {
                 $line_thickness = $size * ($cpdf_font["UnderlineThickness"] / 1000);
             }
         }
@@ -136,32 +132,4 @@ class Text extends AbstractRenderer
             $deco_y = $y; //$line->y;
             $color = $f->get_style()->color;
 
-            switch ($text_deco) {
-                default:
-                    continue 2;
-
-                case "underline":
-                    $deco_y += $base - $descent + $underline_offset + $line_thickness / 2;
-                    break;
-
-                case "overline":
-                    $deco_y += $overline_offset + $line_thickness / 2;
-                    break;
-
-                case "line-through":
-                    $deco_y += $base * 0.7 + $linethrough_offset;
-                    break;
-            }
-
-            $dx = 0;
-            $x1 = $x - self::DECO_EXTENSION;
-            $x2 = $x + $width + $dx + self::DECO_EXTENSION;
-            $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $line_thickness);
-        }
-
-        if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutLines()) {
-            $text_width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $size);
-            $this->_debug_layout([$x, $y, $text_width + ($line->wc - 1) * $word_spacing, $frame_font_size], "orange", [0.5, 0.5]);
-        }
-    }
-}
+            switch ($
