@@ -1,7 +1,19 @@
-#test .help,
-#file,
-.help:hover,
-li.green,
+/* Test hover effect on .help class */
+.test.help:hover {
+	font-family: Helvetica;
+}
+
+/* Style file selector */
+#file {
+	font-family: Helvetica;
+}
+
+/* Style green class */
+li.green {
+	font-family: Helvetica;
+}
+
+/* Style ordered list items */
 ol li::before {
 	font-family: Helvetica;
 }
