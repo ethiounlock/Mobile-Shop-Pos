@@ -1,5 +1,10 @@
-#header {
-	margin: 10px 2em 1cm 2%;
-	font-family: Verdana, Helvetica, "Gill Sans", sans-serif;
-	color: red !important;
+/* General styles for the header */
+.header {
+  margin: 10px 2em 1cm 2%;
+  font-family: Verdana, Helvetica, "Gill Sans", sans-serif;
+}
+
+/* Specific style for the header text color */
+.header-text {
+  color: red !important;
 }
