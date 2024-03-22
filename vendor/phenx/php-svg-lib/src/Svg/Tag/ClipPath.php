@@ -1,10 +1,4 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
 
 namespace Svg\Tag;
 
@@ -12,11 +6,22 @@ use Svg\Style;
 
 class ClipPath extends AbstractTag
 {
-    protected function before($attributes)
+    /**
+     * @param array|null $attributes
+     */
+    protected function before(?array $attributes): void
     {
         $surface = $this->document->getSurface();
 
-        $surface->save();
+        if (!is_resource($surface)) {
+            throw new \RuntimeException('Surface resource is not valid.');
+        }
+
+        $surfaceSaveResult = $surface->save();
+
+        if ($surfaceSaveResult === false) {
+            throw new \RuntimeException('Failed to save surface state.');
+        }
 
         $style = $this->makeStyle($attributes);
 
@@ -26,8 +31,21 @@ class ClipPath extends AbstractTag
         $this->applyTransform($attributes);
     }
 
-    protected function after()
+    /**
+     * @return void
+     */
+    protected function after(): void
     {
-        $this->document->getSurface()->restore();
+        $surface = $this->document->getSurface();
+
+        if (!is_resource($surface)) {
+            throw new \RuntimeException('Surface resource is not valid.');
+        }
+
+        $surfaceRestoreResult = $surface->restore();
+
+        if ($surfaceRestoreResult === false) {
+            throw new \RuntimeException('Failed to restore surface state.');
+        }
     }
-} 
+}
