@@ -1,5 +1,7 @@
 <?php
 /**
+ * Package for working with OpenType and TrueType font files in PHP.
+ *
  * @package php-font-lib
  * @link    https://github.com/PhenX/php-font-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
@@ -8,11 +10,13 @@
 
 namespace FontLib\OpenType;
 
+use FontLib\TrueType\TableDirectoryEntry as TrueTypeTableDirectoryEntry;
+
 /**
- * Open Type Table directory entry, the same as a TrueType one.
+ * OpenType Table directory entry, which is similar to a TrueType one.
  *
  * @package php-font-lib
  */
-class TableDirectoryEntry extends \FontLib\TrueType\TableDirectoryEntry {
-
+class TableDirectoryEntry extends TrueTypeTableDirectoryEntry
+{
 }
