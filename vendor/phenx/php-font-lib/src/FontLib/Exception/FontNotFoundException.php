@@ -4,8 +4,16 @@ namespace FontLib\Exception;
 
 class FontNotFoundException extends \Exception
 {
-    public function __construct($fontPath)
+    private $fontPath;
+
+    public function __construct(string $fontPath)
     {
-        $this->message = 'Font not found in: ' . $fontPath;
+        $this->fontPath = $fontPath;
+        parent::__construct(sprintf('Font not found in: %s', $fontPath));
+    }
+
+    public function getFontPath(): string
+    {
+        return $this->fontPath;
     }
 }
