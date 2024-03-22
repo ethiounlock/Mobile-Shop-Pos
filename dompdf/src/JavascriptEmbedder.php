@@ -1,24 +1,17 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+
+declare(strict_types=1);
+
 namespace Dompdf;
 
-/**
- * Embeds Javascript into the PDF document
- *
- * @package dompdf
- */
-class JavascriptEmbedder
-{
+use Dompdf\Frame;
 
+final class JavascriptEmbedder
+{
     /**
      * @var Dompdf
      */
-    protected $_dompdf;
+    private $dompdf;
 
     /**
      * JavascriptEmbedder constructor.
@@ -27,26 +20,35 @@ class JavascriptEmbedder
      */
     public function __construct(Dompdf $dompdf)
     {
-        $this->_dompdf = $dompdf;
+        $this->dompdf = $dompdf;
     }
 
     /**
-     * @param $script
+     * @param string $script
      */
-    public function insert($script)
+    public function insert(string $script): void
     {
-        $this->_dompdf->getCanvas()->javascript($script);
+        $this->dompdf->getCanvas()->javascript($script);
     }
 
     /**
      * @param Frame $frame
+     *
+     * @throws \RuntimeException
      */
-    public function render(Frame $frame)
+    public function render(Frame $frame): void
     {
-        if (!$this->_dompdf->getOptions()->getIsJavascriptEnabled()) {
+        if (!$this->dompdf->getOptions()->getIsJavascriptEnabled()) {
             return;
         }
 
-        $this->insert($frame->get_node()->nodeValue);
+        $nodeValue = $frame->getNodeValue();
+        if (!\is_string($nodeValue)) {
+            throw new \RuntimeException('Node value must be a string.');
+        }
+
+        $this->insert($nodeValue);
     }
+
+    const JS = 'javascript';
 }
