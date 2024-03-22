@@ -1,4 +1,6 @@
 **/*.min.css
+**/_css/    <-- Add this line to specify a directory for minified CSS files
 **/dist/
 **/vendor/
-/_gh_pages/
+**/_gh_pages/
+
