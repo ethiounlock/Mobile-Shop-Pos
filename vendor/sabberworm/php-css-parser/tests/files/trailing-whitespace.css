@@ -1,2 +1,6 @@
-div { width: 200px; }
+.my-div {
+  width: 200px;
+}
 
+
+<div class="my-div">This is a div with a width of 200 pixels.</div>
