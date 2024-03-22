@@ -1,14 +1,21 @@
+/* Header section */
 #header {
-	margin: 10px 2em 1cm 2%;
+	/* Margin shorthand property: 10px at the top, 2em on the right and left, 1cm at the bottom */
+	margin: 10px 2em 1cm;
+	/* Font family and size properties */
 	font-family: Verdana, Helvetica, "Gill Sans", sans-serif;
 	font-size: 10px;
+	/* Color property with !important declaration */
 	color: red !important;
+	/* Background color properties */
 	background-color: green;
-	background-color: rgba(0,128,0,0.7);
-	frequency: 30Hz;
+	background-color: rgba(0, 128, 0, 0.7);
 }
 
+/* Body section */
 body {
+	/* Color property */
 	color: green;
+	/* Font family and size properties */
 	font: 75% "Lucida Grande", "Trebuchet MS", Verdana, sans-serif;
 }
