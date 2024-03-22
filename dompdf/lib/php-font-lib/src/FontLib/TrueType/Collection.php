@@ -1,10 +1,4 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\TrueType;
 
@@ -22,17 +16,18 @@ class Collection extends BinaryStream implements Iterator, Countable {
   /**
    * Current iterator position.
    *
-   * @var integer
+   * @var int
    */
   private $position = 0;
 
-  protected $collectionOffsets = array();
-  protected $collection = array();
-  protected $version;
-  protected $numFonts;
+  protected array $collectionOffsets = [];
+  protected array $collection = [];
+  protected ?int $version = null;
+  protected int $numFonts;
+  protected ?BinaryStream $f;
 
-  function parse() {
-    if (isset($this->numFonts)) {
+  function parse(): void {
+    if ($this->numFonts !== null) {
       return;
     }
 
@@ -52,7 +47,7 @@ class Collection extends BinaryStream implements Iterator, Countable {
    * @throws OutOfBoundsException
    * @return File
    */
-  function getFont($fontId) {
+  function getFont(int $fontId): File {
     $this->parse();
 
     if (!isset($this->collectionOffsets[$fontId])) {
@@ -63,38 +58,39 @@ class Collection extends BinaryStream implements Iterator, Countable {
       return $this->collection[$fontId];
     }
 
-    $font    = new File();
+    $font = new File();
+
+    if ($this->f === null) {
+      throw new \RuntimeException('f property is not set');
+    }
+
     $font->f = $this->f;
     $font->setTableOffset($this->collectionOffsets[$fontId]);
 
     return $this->collection[$fontId] = $font;
   }
 
-  function current() {
+  function current(): File {
     return $this->getFont($this->position);
   }
 
-  function key() {
+  function key(): int {
     return $this->position;
   }
 
-  function next() {
-    return ++$this->position;
+  function next(): void {
+    ++$this->position;
   }
 
-  function rewind() {
+  function rewind(): void {
     $this->position = 0;
   }
 
-  function valid() {
+  function valid(): bool {
     $this->parse();
 
     return isset($this->collectionOffsets[$this->position]);
   }
 
-  function count() {
-    $this->parse();
-
-    return $this->numFonts;
-  }
-}
+  function count(): int {
+    $this
