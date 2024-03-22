@@ -1,10 +1,4 @@
 <?php
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace Dompdf\Positioner;
 
@@ -22,56 +16,69 @@ class Inline extends AbstractPositioner
 
     /**
      * @param AbstractFrameDecorator $frame
+     * @return void
      * @throws Exception
      */
-    function position(AbstractFrameDecorator $frame)
+    public function position(AbstractFrameDecorator $frame): void
     {
-        /**
-         * Find our nearest block level parent and access its lines property.
-         * @var BlockFrameDecorator
-         */
-        $p = $frame->find_block_parent();
-
-        // Debugging code:
-
-        // Helpers::pre_r("\nPositioning:");
-        // Helpers::pre_r("Me: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
-        // Helpers::pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
-
-        // End debugging
+        $p = $this->getBlockLevelParent($frame);
 
         if (!$p) {
             throw new Exception("No block-level parent found.  Not good.");
         }
 
+        $this->positionFrame($frame, $p);
+    }
+
+    /**
+     * Position the given frame inside the given block frame
+     *
+     * @param AbstractFrameDecorator $frame
+     * @param AbstractFrameDecorator $blockFrame
+     * @return void
+     */
+    protected function positionFrame(AbstractFrameDecorator $frame, AbstractFrameDecorator $blockFrame): void
+    {
+        $cb = $frame->get_containing_block();
+        $line = $blockFrame->get_current_line_box();
+
+        $isFixedPositionElement = false;
         $f = $frame;
-
-        $cb = $f->get_containing_block();
-        $line = $p->get_current_line_box();
-
-        // Skip the page break if in a fixed position element
-        $is_fixed = false;
         while ($f = $f->get_parent()) {
             if ($f->get_style()->position === "fixed") {
-                $is_fixed = true;
+                $isFixedPositionElement = true;
                 break;
             }
         }
 
-        $f = $frame;
-
-        if (!$is_fixed && $f->get_parent() &&
+        if (!$isFixedPositionElement && $f->get_parent() &&
             $f->get_parent() instanceof InlineFrameDecorator &&
             $f->is_text_node()
         ) {
-            $min_max = $f->get_reflower()->get_min_max_width();
+            $minMax = $f->get_reflower()->get_min_max_width();
 
-            // If the frame doesn't fit in the current line, a line break occurs
-            if ($min_max["min"] > ($cb["w"] - $line->left - $line->w - $line->right)) {
-                $p->add_line();
+            if ($minMax["min"] > ($cb["w"] - $line->left - $line->w - $line->right)) {
+                $blockFrame->add_line();
+                $line = $blockFrame->get_current_line_box();
             }
         }
 
-        $f->set_position($cb["x"] + $line->w, $line->y);
+        $frame->set_position($cb["x"] + $line->w, $line->y);
+    }
+
+    /**
+     * Get the nearest block-level parent of the given frame
+     *
+     * @param AbstractFrameDecorator $frame
+     * @return AbstractFrameDecorator|null
+     */
+    protected function getBlockLevelParent(AbstractFrameDecorator $frame): ?AbstractFrameDecorator
+    {
+        $f = $frame;
+        do {
+            $f = $f->get_parent();
+        } while ($f && !$f->isBlockFrame());
+
+        return $f;
     }
 }
