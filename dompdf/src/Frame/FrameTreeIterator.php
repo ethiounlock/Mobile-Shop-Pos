@@ -1,13 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Dompdf\Frame;
 
 use Iterator;
 use Dompdf\Frame;
 
 /**
- * Pre-order Iterator
+ * Class FrameTreeIterator
  *
- * Returns frames in preorder traversal order (parent then children)
+ * Returns frames in preorder traversal order (parent then children).
  *
  * @access private
  * @package dompdf
@@ -17,80 +20,82 @@ class FrameTreeIterator implements Iterator
     /**
      * @var Frame
      */
-    protected $_root;
+    protected $root;
 
     /**
-     * @var array
+     * @var Frame[]
      */
-    protected $_stack = [];
+    protected array $stack = [];
 
     /**
      * @var int
      */
-    protected $_num;
+    protected int $num;
 
     /**
+     * FrameTreeIterator constructor.
+     *
      * @param Frame $root
      */
     public function __construct(Frame $root)
     {
-        $this->_stack[] = $this->_root = $root;
-        $this->_num = 0;
+        $this->root = $root;
+        $this->stack[] = $root;
+        $this->num = 0;
     }
 
     /**
      *
      */
-    public function rewind()
+    public function rewind(): void
     {
-        $this->_stack = [$this->_root];
-        $this->_num = 0;
+        $this->stack = [$this->root];
+        $this->num = 0;
     }
 
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
-        return count($this->_stack) > 0;
+        return count($this->stack) > 0;
     }
 
     /**
      * @return int
      */
-    public function key()
+    public function key(): int
     {
-        return $this->_num;
+        return $this->num;
     }
 
     /**
      * @return Frame
      */
-    public function current()
+    public function current(): Frame
     {
-        return end($this->_stack);
+        return end($this->stack);
     }
 
     /**
      * @return Frame
      */
-    public function next()
+    public function next(): Frame
     {
-        $b = end($this->_stack);
+        $b = end($this->stack);
 
         // Pop last element
-        unset($this->_stack[key($this->_stack)]);
-        $this->_num++;
+        unset($this->stack[key($this->stack)]);
+        $this->num++;
 
         // Push all children onto the stack in reverse order
-        if ($c = $b->get_last_child()) {
-            $this->_stack[] = $c;
-            while ($c = $c->get_prev_sibling()) {
-                $this->_stack[] = $c;
+        if ($c = $b->getLastChild()) {
+            $this->stack[] = $c;
+            while ($c = $c->getPrevSibling()) {
+                $this->stack[] = $c;
             }
         }
 
         return $b;
     }
 }
-
