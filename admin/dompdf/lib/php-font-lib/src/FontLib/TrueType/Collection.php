@@ -1,10 +1,4 @@
 <?php
-/**
- * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 namespace FontLib\TrueType;
 
@@ -22,40 +16,84 @@ class Collection extends BinaryStream implements Iterator, Countable {
   /**
    * Current iterator position.
    *
-   * @var integer
+   * @var int
    */
   private $position = 0;
 
-  protected $collectionOffsets = array();
-  protected $collection = array();
+  /**
+   * Offsets of each font in the collection.
+   *
+   * @var array
+   */
+  protected $collectionOffsets = [];
+
+  /**
+   * Collection of FontLib\TrueType\File objects.
+   *
+   * @var array
+   */
+  protected $collection = [];
+
+  /**
+   * Version of the collection.
+   *
+   * @var int
+   */
   protected $version;
+
+  /**
+   * Number of fonts in the collection.
+   *
+   * @var int
+   */
   protected $numFonts;
 
-  function parse() {
-    if (isset($this->numFonts)) {
+  /**
+   * FontLib\BinaryStream object.
+   *
+   * @var BinaryStream
+   */
+  protected $f;
+
+  /**
+   * Collection constructor.
+   *
+   * @param BinaryStream $f
+   */
+  public function __construct(BinaryStream $f) {
+    $this->f = $f;
+  }
+
+  /**
+   * Parse the collection.
+   */
+  public function parse() {
+    if ($this->numFonts !== null) {
       return;
     }
 
-    $this->read(4); // tag name
+    $this->f->read(4); // tag name
 
-    $this->version  = $this->readFixed();
-    $this->numFonts = $this->readUInt32();
+    $this->version  = $this->f->readFixed();
+    $this->numFonts = $this->f->readUInt32();
 
     for ($i = 0; $i < $this->numFonts; $i++) {
-      $this->collectionOffsets[] = $this->readUInt32();
+      $this->collectionOffsets[] = $this->f->readUInt32();
     }
   }
 
   /**
+   * Get a font from the collection.
+   *
    * @param int $fontId
    *
-   * @throws OutOfBoundsException
    * @return File
+   * @throws OutOfBoundsException
    */
-  function getFont($fontId) {
+  public function getFont(int $fontId): File {
     $this->parse();
 
-    if (!isset($this->collectionOffsets[$fontId])) {
+    if ($fontId < 0 || $fontId >= $this->numFonts) {
       throw new OutOfBoundsException();
     }
 
@@ -63,38 +101,4 @@ class Collection extends BinaryStream implements Iterator, Countable {
       return $this->collection[$fontId];
     }
 
-    $font    = new File();
-    $font->f = $this->f;
-    $font->setTableOffset($this->collectionOffsets[$fontId]);
-
-    return $this->collection[$fontId] = $font;
-  }
-
-  function current() {
-    return $this->getFont($this->position);
-  }
-
-  function key() {
-    return $this->position;
-  }
-
-  function next() {
-    return ++$this->position;
-  }
-
-  function rewind() {
-    $this->position = 0;
-  }
-
-  function valid() {
-    $this->parse();
-
-    return isset($this->collectionOffsets[$this->position]);
-  }
-
-  function count() {
-    $this->parse();
-
-    return $this->numFonts;
-  }
-}
+    if ($
