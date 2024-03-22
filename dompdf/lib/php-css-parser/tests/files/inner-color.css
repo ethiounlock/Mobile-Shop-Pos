@@ -1,3 +1,5 @@
-test {
-	background: -webkit-gradient(linear, 0 0, 0 bottom, from(#006cad), to(hsl(202, 100%, 49%)));
+.test {
+  background: linear-gradient(to bottom, #006cad, hsl(202, 100%, 49%));
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
