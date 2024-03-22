@@ -1,44 +1,54 @@
 <?php
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien M�nager <fabien.menager@gmail.com>
- * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
- */
+
+declare(strict_types=1);
 
 namespace Svg\Tag;
 
+use Svg\Document;
+use Svg\Surface;
+
+/**
+ * @package php-svg-lib
+ * @link    http://github.com/PhenX/php-svg-lib
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
+ */
 class UseTag extends AbstractTag
 {
-    protected $x = 0;
-    protected $y = 0;
-    protected $width;
-    protected $height;
+    protected ?int $x = 0;
+    protected ?int $y = 0;
+    protected ?int $width;
+    protected ?int $height;
 
-    /** @var AbstractTag */
-    protected $reference;
+    /** @var AbstractTag|null */
+    protected ?AbstractTag $reference = null;
 
-    protected function before($attributes)
+    protected function before(array $attributes): void
     {
         if (isset($attributes['x'])) {
-            $this->x = $attributes['x'];
+            $this->x = (int)$attributes['x'];
         }
         if (isset($attributes['y'])) {
-            $this->y = $attributes['y'];
+            $this->y = (int)$attributes['y'];
         }
 
         if (isset($attributes['width'])) {
-            $this->width = $attributes['width'];
+            $this->width = (int)$attributes['width'];
         }
         if (isset($attributes['height'])) {
-            $this->height = $attributes['height'];
+            $this->height = (int)$attributes['height'];
         }
 
-        parent::before($attributes);
-
         $document = $this->getDocument();
+        if (!$document instanceof Document) {
+            throw new \RuntimeException('Document instance is not valid.');
+        }
 
-        $link = $attributes["xlink:href"];
+        $link = $attributes["xlink:href"] ?? '';
+        if (!filter_var($link, FILTER_VALIDATE_URL)) {
+            throw new \InvalidArgumentException('Invalid URL provided.');
+        }
+
         $this->reference = $document->getDef($link);
 
         if ($this->reference) {
@@ -46,14 +56,16 @@ class UseTag extends AbstractTag
         }
 
         $surface = $document->getSurface();
-        $surface->save();
+        if (!$surface instanceof Surface) {
+            throw new \RuntimeException('Surface instance is not valid.');
+        }
 
+        $surface->save();
         $surface->translate($this->x, $this->y);
     }
 
-    protected function after() {
-        parent::after();
-
+    protected function after(): void
+    {
         if ($this->reference) {
             $this->reference->after();
         }
@@ -61,10 +73,8 @@ class UseTag extends AbstractTag
         $this->getDocument()->getSurface()->restore();
     }
 
-    public function handle($attributes)
+    public function handle(array $attributes): void
     {
-        parent::handle($attributes);
-
         if (!$this->reference) {
             return;
         }
@@ -79,10 +89,8 @@ class UseTag extends AbstractTag
         }
     }
 
-    public function handleEnd()
+    public function handleEnd(): void
     {
-        parent::handleEnd();
-
         if (!$this->reference) {
             return;
         }
@@ -91,6 +99,4 @@ class UseTag extends AbstractTag
 
         foreach ($this->reference->children as $_child) {
             $_child->handleEnd();
-        }
-    }
-} 
+
